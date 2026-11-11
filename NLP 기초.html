@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기획 노트 · NLP 기초</title>
+<meta name="description" content="IT 기획자를 위한 자연어 처리 기초 8단계">
+<script>
+  try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --bg: #e9eef9; --dot: rgba(47, 79, 224, .10); --paper: rgba(250, 252, 255, .86); --paper-solid: #f8faff; --cell: #fbfcff;
+  --ink: #131d55; --ink-2: #4b5a98; --ink-3: #8593c4; --blue: #2f4fe0; --blue-ink: #ffffff;
+  --bar: #d4e2ff; --bar-ink: #1b2a78; --line: #9db2ef; --line-soft: #d3ddf7; --shadow: #a9bdf5;
+  --bubble: #e3ecff; --say: #eef0f4; --mark: #ffe58a; --ring: #bcd6fb;
+  --font-pixel: 'Galmuri11', 'Galmuri9', ui-monospace, monospace;
+  --font-mono: 'Galmuri Mono 11', 'GalmuriMono11', ui-monospace, 'Consolas', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+    --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+    --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+    --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+  --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+  --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+  --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; font-family: var(--font-body); color: var(--ink); line-height: 1.6;
+  background: radial-gradient(var(--dot) 1px, transparent 1.2px) 0 0 / 18px 18px, var(--bg);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.ring { position: fixed; right: -90px; bottom: -110px; width: 380px; height: 300px; border-radius: 50%; border: 34px solid var(--ring); transform: rotate(-12deg); pointer-events: none; z-index: 0; }
+.ring::after { content: ""; position: absolute; left: -64px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--ring); }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.win { background: var(--paper); border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.bar { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 4px 0 10px; background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--line); font-family: var(--font-pixel); font-size: 12px; letter-spacing: .02em; user-select: none; }
+.bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: pointer; padding: 0; }
+.ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+
+/* sidebar */
+.nav { position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 260px; display: flex; flex-direction: column; transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s; }
+.nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; }
+.node + .node { margin-top: 4px; }
+.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
+.node-h:hover { background: var(--bubble); }
+.node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
+.caret path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.node.open > .node-h .caret { transform: rotate(90deg); }
+.node.off > .node-h { color: var(--ink-3); cursor: default; }
+.node.off > .node-h:hover { background: none; }
+.node.off .caret, .node.link .caret { opacity: .35; }
+.node.link > .node-h { color: var(--ink-2); }
+.kids { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+.node.open > .kids { grid-template-rows: 1fr; }
+.kids > ul { overflow: hidden; list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px dashed var(--line); }
+.leaf { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 6px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-size: 13.5px; color: var(--ink-2); text-decoration: none; }
+.leaf .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf:hover { color: var(--ink); background: var(--bubble); }
+.leaf.on { color: var(--blue); background: var(--bubble); font-weight: 600; }
+.scrim { display: none; }
+
+/* main */
+.main { position: relative; z-index: 1; margin-left: 292px; padding: 16px 24px 80px 16px; transition: margin-left .28s cubic-bezier(.3,.7,.2,1); }
+.wrap { max-width: 1120px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: pointer; padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+.sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+#navBtn { display: none; }
+body.nav-closed #navBtn { display: grid; }
+body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
+body.nav-closed .main { margin-left: 0; }
+.search { position: relative; display: flex; align-items: center; width: min(300px, 100%); height: 38px; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.search svg { position: absolute; left: 11px; width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.7; fill: none; pointer-events: none; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none; padding: 0 34px; font: 14px var(--font-body); color: var(--ink); }
+.search input::placeholder { color: var(--ink-3); }
+.search:focus-within { border-color: var(--blue); }
+.search kbd { position: absolute; right: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-soft); padding: 0 5px; line-height: 18px; }
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.icon-sun { display: none; }
+.is-dark .icon-sun { display: block; }
+.is-dark .icon-moon { display: none; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.filters button { cursor: pointer; height: 28px; padding: 0 11px; font-family: var(--font-pixel); font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper-solid); }
+.filters button .n { margin-left: 6px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); }
+.filters button:hover { color: var(--blue); border-color: var(--blue); }
+.filters button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.filters button[aria-pressed="true"] .n { color: var(--blue-ink); opacity: .75; }
+
+/* lessons */
+.lesson { margin-bottom: 22px; scroll-margin-top: 16px; }
+.lesson .bar { height: 34px; }
+.lesson .bar .no { font-family: var(--font-mono); font-size: 11px; opacity: .7; }
+.lesson .bar .ttl { font-size: 13px; }
+.chk { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; margin-right: 2px; cursor: pointer; font: 11.5px var(--font-pixel); color: var(--ink-2); background: var(--paper-solid); border: 1px solid var(--line); }
+.chk svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 1.8; fill: none; opacity: .35; }
+.chk:hover { color: var(--blue); border-color: var(--blue); }
+.chk[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.chk[aria-pressed="true"] svg { opacity: 1; }
+.lb { padding: 22px 26px 24px; }
+.lb > .lead { margin: 0 0 12px; font-family: var(--font-pixel); font-size: 17px; line-height: 1.55; color: var(--ink); }
+.lb > p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.8; color: var(--ink-2); }
+.tbl { margin: 16px 0 0; overflow-x: auto; border: 1px solid var(--line-soft); }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.6; }
+.tbl th, .tbl td { padding: 8px 12px; text-align: left; vertical-align: top; border-top: 1px solid var(--line-soft); }
+.tbl thead th { border-top: 0; background: var(--say); font-family: var(--font-pixel); font-weight: 400; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.tbl tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.tbl td { color: var(--ink-2); }
+.pt { margin: 16px 0 0; padding: 12px 14px; background: var(--say); border-left: 3px solid var(--blue); }
+.pt .k { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; font-family: var(--font-pixel); font-size: 11.5px; background: var(--blue); color: var(--blue-ink); }
+.pt ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.75; }
+.pt li + li { margin-top: 2px; }
+.rel { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+.chip { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; font-size: 12.5px; color: var(--ink-2); text-decoration: none; background: var(--paper-solid); border: 1px solid var(--line); }
+.chip:hover { color: var(--blue); border-color: var(--blue); }
+.tasks { margin: 0; padding: 6px 26px 22px 46px; }
+.tasks li { padding: 14px 0; border-top: 1px solid var(--line-soft); }
+.tasks li:first-child { border-top: 0; }
+.tasks h3 { margin: 0 0 4px; font-size: 15px; }
+.tasks p { margin: 0; font-size: 14px; line-height: 1.75; color: var(--ink-2); }
+.leaf .num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf.is-done { color: var(--ink-3); }
+.leaf.is-done::after { content: "✓"; margin-left: auto; color: var(--blue); font-size: 12px; }
+@media (max-width: 899px) {
+  .lb { padding: 18px 16px 20px; }
+  .lb > .lead { font-size: 16px; }
+  .tasks { padding: 4px 16px 18px 34px; }
+  .tbl th, .tbl td { padding: 7px 10px; }
+  .nav { left: 0; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: none; border-width: 0 1px 0 0; transform: translateX(-100%); opacity: 1; }
+  body.nav-open .nav { transform: none; box-shadow: 6px 0 0 var(--shadow); }
+  body.nav-closed .nav { transform: translateX(-100%); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(8, 13, 44, .35); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+  .main, body.nav-closed .main { margin-left: 0; padding: 12px 16px 60px; }
+  #navBtn { display: grid; }
+  .title h1 { font-size: 22px; }
+  .search { order: 5; width: 100%; }
+  .search kbd { display: none; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters button { flex: none; }
+  .ring { width: 260px; height: 200px; border-width: 24px; right: -110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="ring" aria-hidden="true"></div>
+
+<aside class="nav win" id="nav" aria-label="메뉴">
+  <div class="bar">
+    <span class="ttl">기획 노트</span>
+    <button class="ctl" id="navClose" aria-label="메뉴 닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+  </div>
+  <nav class="tree" id="tree"></nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="wrap">
+    <header class="top">
+      <button class="sq" id="navBtn" aria-label="메뉴 열기"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+      <div class="title"><h1>NLP 기초</h1><span class="n" id="count"></span></div>
+      <button class="sq" id="themeBtn" aria-label="화면 테마 전환">
+        <svg class="icon-moon" viewBox="0 0 16 16"><path d="M13 9.6A5.6 5.6 0 0 1 6.4 3a5.6 5.6 0 1 0 6.6 6.6z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg>
+      </button>
+    </header>
+    <div id="list"></div>
+  </div>
+</main>
+
+<script>
+/* ════════════════════════════════════════════
+   NLP 기초 — 내용은 scratchpad/nlp/lessons.js, 빌드: node build-nlp.js <site>
+   ════════════════════════════════════════════ */
+const LESSONS = [{"id":"l1","title":"NLP가 하는 일","lead":"컴퓨터가 사람의 말과 글을 이해하고 만들어 내게 하는 기술이다.","body":["겉보기에 다양한 AI 기능도 대부분 다섯 가지 작업의 조합이다. 챗봇 하나에도 질문 분류 → 정보 검색 → 답변 생성이 들어 있다."],"ex":{"head":["작업","하는 일","서비스 예"],"rows":[["분류","글을 정해진 칸에 나눈다","문의 유형 자동 배정, 스팸 필터"],["추출","글에서 필요한 정보만 뽑는다","주문번호·주소 인식, 개인정보 가리기"],["검색","질문에 맞는 글을 찾는다","사내 문서 검색, FAQ 추천"],["생성","새 글을 쓴다","답변 초안, 상품 설명"],["변환","형태를 바꾼다","번역, 요약, 맞춤법 교정, 음성↔글자"]]},"point":["\"AI로 문의 응대 자동화\" 같은 막연한 요구를 받으면, 다섯 작업 중 무엇들의 조합인지 먼저 쪼갠다.","작업마다 필요한 데이터, 정확도 기준, 실패했을 때의 처리가 다르다."],"terms":["llm","ai-agent"]},{"id":"l2","title":"글을 쪼개기","lead":"컴퓨터는 글을 작은 조각으로 나눈 뒤에야 다룰 수 있다.","body":["글을 나누는 단위를 토큰이라고 한다. 영어는 띄어쓰기로 어느 정도 나뉘지만, 한국어는 \"환불했는데요\" 한 덩어리에 환불 + 하 + 었 + 는데 + 요가 붙어 있다. 그래서 뜻을 가진 가장 작은 단위로 나누는 형태소 분석이 필요하다.","LLM은 자체 방식으로 글자 조각을 나누는데, 한국어는 같은 내용이라도 영어보다 토큰이 많이 나와 비용이 더 든다."],"ex":{"head":["입력","쪼갠 결과"],"rows":[["배송이 안 와서 환불했는데요","배송(명사) · 이(조사) · 안(부사) · 오(동사) · 아서(어미) · 환불(명사) · 하(동사) · 었(어미) · 는데요(어미)"],["갤럭시S25 케이스","사전에 없으면 갤럭시 · S · 25로 갈라짐 → 상품명 사전 등록 필요"]]},"point":["검색이나 분류 결과가 이상하면 \"띄어쓰기, 조사, 오타를 어떻게 처리하나\"부터 묻는다.","신조어와 상품명은 사전에 등록해야 엉뚱하게 쪼개지지 않는다. 운영 중 사전을 누가 관리할지 정해 둔다."],"terms":["ai-token","morpheme"]},{"id":"l3","title":"의미를 숫자로","lead":"뜻이 비슷한 글은 가까운 숫자가 되도록 바꾸는 것이 임베딩이다.","body":["임베딩은 문장을 수백~수천 개의 숫자 묶음으로 바꾼다. \"연차 쓰는 법\"과 \"휴가 신청 방법\"은 글자는 달라도 숫자가 가까워진다. 두 숫자 묶음이 얼마나 가까운지(유사도)를 계산하면 검색, 추천, 묶기를 할 수 있다."],"ex":{"head":["쓰임","하는 일"],"rows":[["시맨틱 검색","표현이 달라도 같은 뜻의 문서를 찾는다"],["중복 찾기","같은 내용의 게시글·문의를 묶는다"],["추천","지금 본 글과 비슷한 글을 보여 준다"],["주제 묶기","대량의 고객 의견(VOC)을 주제별로 자동으로 모은다"]]},"point":["임베딩은 \"비슷함\"만 안다. 정확히 일치해야 하는 모델명·주문번호는 키워드 검색이 낫고, 실무에서는 둘을 섞은 하이브리드 검색을 많이 쓴다.","유사도 몇 점 이상을 \"같은 것\"으로 볼지 기준이 필요하다. 기준이 낮으면 엉뚱한 결과가, 높으면 빈 결과가 늘어난다."],"terms":["embedding","semantic-search","rag"]},{"id":"l4","title":"방법의 변천","lead":"같은 문제를 푸는 방법이 규칙 → 머신러닝 → 사전학습 모델 → LLM 순으로 발전했다. 옛 방법도 여전히 쓴다.","body":["사전학습 모델 중 BERT 계열은 글을 이해하는 데 강한 \"이해형\", GPT 계열은 글을 이어 쓰는 \"생성형\"으로 출발했다. 지금의 LLM은 생성형이 커진 것이다."],"ex":{"head":["방법","방식","장점","한계"],"rows":[["규칙·키워드","\"환불\"이 들어가면 환불 문의","빠르고, 결과 이유를 설명하기 쉽다","표현이 조금만 달라도 놓친다"],["머신러닝 분류기","라벨 붙인 예시 수천 건으로 학습","싸고 빠르고 결과가 일관된다","학습 데이터가 필요하고 새 유형에 약하다"],["사전학습 모델","대량의 글로 언어를 먼저 배운 뒤 작업에 맞게 조정","적은 데이터로 높은 정확도","조정과 운영에 개발이 필요하다"],["LLM","프롬프트로 지시","데이터 없이 바로 시작, 글 생성까지 가능","비용과 속도, 답이 매번 조금씩 다르다, 할루시네이션"]]},"point":["늘 LLM이 정답은 아니다. 하루 10만 건의 문의를 정해진 10개 유형으로 나누는 일은 작은 분류 모델이 더 싸고 빠르다.","LLM으로 먼저 빠르게 검증하고, 규모가 커지면 작은 모델이나 규칙으로 바꾸는 순서도 흔하다."],"terms":["llm","fine-tuning","ai-pricing","temperature"]},{"id":"l5","title":"대표 기능","lead":"서비스에서 자주 만나는 NLP 기능과 각각 기획해야 할 것.","body":[],"ex":{"head":["기능","하는 일","기획할 것"],"rows":[["챗봇","질문을 이해하고 답한다","답할 범위, 모를 때의 응답, 상담원 연결 시점"],["검색·RAG","문서를 찾아 근거로 답한다","검색 대상 문서, 출처 표시, 문서 갱신 주기"],["감성 분석","긍정·부정, 감정을 판별한다","결과로 무엇을 할지(우선순위, 알림), 반어 오판 대응"],["개체명 인식","이름·날짜·주소 등을 뽑는다","뽑을 항목 목록, 못 뽑았을 때 입력 요청"],["요약","긴 글을 짧게 줄인다","길이와 형식, 빠지면 안 되는 정보"],["번역","다른 언어로 바꾼다","용어집(상품명·브랜드), 사람이 검수할 범위"],["음성 인식·합성","말 ↔ 글자 (STT·TTS)","소음·사투리 대응, 받아쓰기 오류를 고치는 화면"]]},"point":["기능마다 \"입력이 무엇이고, 출력이 무엇이며, 틀렸을 때 화면이 어떻게 되는지\" 세 줄을 먼저 쓴다.","틀렸을 때의 화면이 빠진 기획서가 가장 많다."],"terms":["rag","sentiment","ner","multimodal","guardrail"]},{"id":"l6","title":"데이터와 정답 기준","lead":"AI 품질은 결국 데이터와 정답 기준에서 정해진다.","body":["분류·추출 모델을 학습하거나 평가하려면 \"이 글의 정답은 이것\"이라는 표시(라벨)가 붙은 예시가 필요하다. 라벨을 붙이는 작업이 라벨링이고, 라벨을 어떻게 붙일지 정한 문서가 라벨링 가이드다.","LLM을 프롬프트만으로 쓰더라도, 잘 되고 있는지 확인하려면 평가용 정답 데이터는 필요하다."],"ex":{"head":["라벨링 가이드에 들어갈 것","예"],"rows":[["라벨 목록","배송 / 환불 / 교환 / 기타"],["라벨마다 정의와 예시","환불: 돈을 돌려받고 싶다는 뜻이 있으면"],["헷갈리는 경우의 규칙","\"교환 안 되면 환불해 주세요\" → 교환 (첫 요청 기준)"],["판단할 수 없을 때","두 가지 이상이면 \"복합\""],["개인정보 처리","이름·연락처는 가린 뒤 작업"]]},"point":["기획자가 정할 일은 모델이 아니라 정답 기준이다. 사람 둘이 같은 글에 다른 라벨을 붙인다면 AI도 맞힐 수 없다.","개인정보가 들어간 데이터는 외부 AI에 넣기 전에 가린다."],"terms":["masking","private-llm","eval"]},{"id":"l7","title":"평가","lead":"\"잘 되는 것 같다\"가 아니라 숫자로 확인한다.","body":["정확도는 전체 중 맞힌 비율이다. 하지만 스팸이 전체의 1%라면 전부 \"정상\"이라고만 해도 정확도가 99%다. 그래서 정밀도(AI가 고른 것 중 맞은 비율)와 재현율(실제 정답 중 AI가 찾아낸 비율)을 따로 본다. 둘을 합친 점수가 F1이다."],"ex":{"head":["상황","더 피할 실수","우선할 지표"],"rows":[["스팸 필터","정상 메일을 막는 것","정밀도"],["사기 거래 탐지","사기를 놓치는 것","재현율"],["개인정보 가리기","개인정보를 놓치는 것","재현율"],["자동 답변 발송","틀린 답을 보내는 것","정밀도 (자신 없으면 사람에게)"]]},"point":["어떤 실수를 더 피할지는 기술이 아니라 사업 판단이다.","대표 질문과 정답을 모은 평가 세트를 만들어 두고, 프롬프트나 모델을 바꿀 때마다 같은 세트로 다시 잰다.","숫자로 잡히지 않는 답변 품질은 사람이 점수표를 두고 평가한다."],"terms":["precision-recall","eval","qa","hallucination"]},{"id":"l8","title":"한국어와 운영","lead":"실제 사용자의 글은 교과서와 다르고, 출시 후에도 계속 관리해야 한다.","body":["출시 후에는 모르는 질문, 엉뚱한 답, 비용과 응답 속도를 계속 지켜봐야 한다. 처음부터 설계에 넣지 않으면 나중에 붙이기 어렵다."],"ex":{"head":["실제 글의 특성","예"],"rows":[["신조어·줄임말","갓성비, 존맛, 배송 ㄱㄱ"],["오타·띄어쓰기","환불햇는데, 배송언제와요"],["존댓말·반말","같은 요청이 여러 말투로 들어온다"],["반어·비꼼","\"아주 잘~ 왔네요\" (실제로는 불만)"],["섞인 표현","영어 상품명, 숫자, 이모지"]]},"point":["확신이 낮으면 \"모르겠다\"고 답하는 기준","상담원이나 사람에게 넘기는 시점","답변마다 좋아요·싫어요 같은 피드백 수집","틀린 사례를 모아 평가 세트에 다시 넣는 흐름","사용량에 따른 월 비용과 응답 속도 목표"],"terms":["guardrail","streaming","ai-pricing","temperature"]}];
+const TASKS = [{"title":"문의 30건 직접 분류하기","how":"실제 또는 공개된 고객 문의 30건에 라벨을 붙여 본다. 헷갈렸던 사례를 모아 라벨링 가이드를 한 장으로 쓴다.","learn":["l6","l7"]},{"title":"키워드 검색과 AI 검색 비교","how":"같은 질문 5개를 쇼핑몰이나 사이트 검색창, 그리고 AI 검색에 넣고 결과 차이를 표로 정리한다.","learn":["l2","l3"]},{"title":"챗봇이 틀렸을 때의 화면 그리기","how":"모를 때, 틀린 답을 했을 때, 화난 사용자일 때 세 가지 화면을 와이어프레임으로 그린다.","learn":["l5","l8"]}];
+const TERMS = {"llm":"LLM","ai-agent":"AI 에이전트","ai-token":"토큰 (AI)","morpheme":"형태소 분석","embedding":"임베딩 / 벡터 DB","semantic-search":"시맨틱 검색","rag":"RAG","fine-tuning":"파인튜닝","ai-pricing":"AI 요금 (토큰 과금)","temperature":"온도 (Temperature)","sentiment":"감성 분석","ner":"개체명 인식","multimodal":"멀티모달","guardrail":"가드레일","masking":"마스킹 / 비식별화","private-llm":"사내 LLM","eval":"평가 (Eval)","precision-recall":"정밀도 / 재현율","qa":"QA / 테스트 케이스","hallucination":"할루시네이션","streaming":"스트리밍 응답"};
+
+const MENU = [
+  { id: 'it', title: 'IT 용어', href: '기획 노트.html' },
+  { id: 'dict', title: 'IT 기술 사전', href: 'IT 기술 사전.html' },
+  { id: 'job', title: '직무 용어', href: '직무 용어.html' },
+  { id: 'nlp', title: 'NLP 기초', current: true },
+  { id: 'ai', title: 'AI 팁', href: 'AI 팁.html' },
+  { id: 'ref', title: '참고 사이트', href: '레퍼런스.html' },
+  { id: 'api', title: '공개 API', href: '공개 API.html' },
+];
+
+/* ════════════════════════════════════════════ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const mq = matchMedia('(max-width: 899px)');
+const caret = '<svg class="caret" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>';
+const pad = n => String(n).padStart(2, '0');
+const lessonNo = id => LESSONS.findIndex(l => l.id === id) + 1;
+let done = new Set(store.get('pn.nlp.done', []));
+
+function renderTree() {
+  const openNodes = store.get('pn.nlp.tree', ['nlp']);
+  $('#tree').innerHTML = MENU.map(m => {
+    if (m.href) return `<div class="node link"><a class="node-h" href="${esc(m.href)}">${caret}${esc(m.title)}</a></div>`;
+    const open = openNodes.includes(m.id);
+    const kids = LESSONS.map((l, i) => `<li><a class="leaf${done.has(l.id) ? ' is-done' : ''}" href="#${l.id}" data-go="${l.id}"><span class="num">${pad(i + 1)}</span>${esc(l.title)}</a></li>`).join('')
+      + `<li><a class="leaf" href="#tasks" data-go="tasks"><span class="num">+</span>연습 과제</a></li>`;
+    return `<div class="node${open ? ' open' : ''}" data-node="${m.id}">
+      <button class="node-h" aria-expanded="${open}">${caret}${esc(m.title)}<span class="n">${done.size}/${LESSONS.length}</span></button>
+      <div class="kids"><ul>${kids}</ul></div></div>`;
+  }).join('');
+}
+
+const termChip = id => TERMS[id] ? `<a class="chip" href="기획 노트.html#t-${esc(id)}">${esc(TERMS[id])}</a>` : '';
+const table = ex => `<div class="tbl"><table><thead><tr>${ex.head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+  <tbody>${ex.rows.map(r => `<tr>${r.map((c, i) => i ? `<td>${esc(c)}</td>` : `<th scope="row">${esc(c)}</th>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+function render() {
+  $('#list').innerHTML = LESSONS.map((l, i) => `
+    <section class="win lesson${done.has(l.id) ? ' is-done' : ''}" id="${l.id}">
+      <div class="bar"><span class="no">${pad(i + 1)}</span><span class="ttl">${esc(l.title)}</span>
+        <button class="chk" data-id="${l.id}" aria-pressed="${done.has(l.id)}"><svg viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7"/></svg>완료</button></div>
+      <div class="lb">
+        <p class="lead">${esc(l.lead)}</p>
+        ${l.body.map(p => `<p>${esc(p)}</p>`).join('')}
+        ${l.ex ? table(l.ex) : ''}
+        <div class="pt"><span class="k">기획 포인트</span><ul>${l.point.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+        ${l.terms.length ? `<div class="rel">${l.terms.map(termChip).join('')}</div>` : ''}
+      </div>
+    </section>`).join('') + `
+    <section class="win lesson" id="tasks">
+      <div class="bar"><span class="no">+</span><span class="ttl">연습 과제</span></div>
+      <ol class="tasks">${TASKS.map(t => `<li><h3>${esc(t.title)}</h3><p>${esc(t.how)}</p>
+        <div class="rel">${t.learn.map(id => `<a class="chip" href="#${id}" data-go="${id}">${pad(lessonNo(id))} ${esc(LESSONS[lessonNo(id) - 1].title)}</a>`).join('')}</div></li>`).join('')}</ol>
+    </section>`;
+  $('#count').textContent = `${done.size}/${LESSONS.length}`;
+}
+
+function go(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+  try { history.replaceState(null, '', '#' + id); } catch (err) {}
+  spy();
+}
+
+$('#list').addEventListener('click', e => {
+  const c = e.target.closest('.chk');
+  if (c) {
+    const id = c.dataset.id;
+    done.has(id) ? done.delete(id) : done.add(id);
+    store.set('pn.nlp.done', [...done]);
+    c.setAttribute('aria-pressed', done.has(id));
+    c.closest('.lesson').classList.toggle('is-done', done.has(id));
+    $('#count').textContent = `${done.size}/${LESSONS.length}`;
+    renderTree(); spy();
+    return;
+  }
+  const a = e.target.closest('[data-go]');
+  if (a) { e.preventDefault(); go(a.dataset.go); }
+});
+$('#tree').addEventListener('click', e => {
+  const a = e.target.closest('[data-go]'); if (!a) return;
+  e.preventDefault(); go(a.dataset.go);
+  if (mq.matches) setNav(false);
+});
+
+function spy() {
+  let cur = '';
+  for (const s of $$('.lesson')) if (s.getBoundingClientRect().top < 120) cur = s.id;
+  $$('.leaf[data-go]').forEach(l => l.classList.toggle('on', l.dataset.go === cur));
+}
+addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.body.classList.contains('nav-open')) setNav(false);
+});
+
+/* nav */
+function setNav(open) {
+  if (mq.matches) document.body.classList.toggle('nav-open', open);
+  else { document.body.classList.toggle('nav-closed', !open); store.set('pn.navClosed', !open); }
+}
+$('#navBtn').addEventListener('click', () => setNav(mq.matches ? !document.body.classList.contains('nav-open') : true));
+$('#navClose').addEventListener('click', () => setNav(false));
+$('#scrim').addEventListener('click', () => setNav(false));
+if (store.get('pn.navClosed', false)) document.body.classList.add('nav-closed');
+mq.addEventListener('change', () => document.body.classList.remove('nav-open'));
+$('#tree').addEventListener('click', e => {
+  const h = e.target.closest('.node:not(.off):not(.link) > .node-h');
+  if (!h) return;
+  const open = h.parentElement.classList.toggle('open');
+  h.setAttribute('aria-expanded', open);
+  store.set('pn.nlp.tree', $$('.node.open').map(n => n.dataset.node));
+});
+
+/* theme */
+const dark = matchMedia('(prefers-color-scheme: dark)');
+function isDark() { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : dark.matches; }
+function syncThemeIcon() { document.body.classList.toggle('is-dark', isDark()); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('pn.theme', next); } catch (e) {}
+  syncThemeIcon();
+});
+dark.addEventListener('change', syncThemeIcon);
+
+renderTree();
+render();
+syncThemeIcon();
+try { const h = decodeURIComponent(location.hash.slice(1)); if (h) document.getElementById(h)?.scrollIntoView(); } catch (e) {}
+spy();
+</script>
+</body>
+</html>

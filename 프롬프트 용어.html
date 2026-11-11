@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기획 노트 · 프롬프트 용어</title>
+<meta name="description" content="이미지·영상 생성 AI에 요청할 때 쓰는 촬영·조명·스타일 용어 모음">
+<script>
+  try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --bg: #e9eef9; --dot: rgba(47, 79, 224, .10); --paper: rgba(250, 252, 255, .86); --paper-solid: #f8faff; --cell: #fbfcff;
+  --ink: #131d55; --ink-2: #4b5a98; --ink-3: #8593c4; --blue: #2f4fe0; --blue-ink: #ffffff;
+  --bar: #d4e2ff; --bar-ink: #1b2a78; --line: #9db2ef; --line-soft: #d3ddf7; --shadow: #a9bdf5;
+  --bubble: #e3ecff; --say: #eef0f4; --mark: #ffe58a; --ring: #bcd6fb;
+  --font-pixel: 'Galmuri11', 'Galmuri9', ui-monospace, monospace;
+  --font-mono: 'Galmuri Mono 11', 'GalmuriMono11', ui-monospace, 'Consolas', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+    --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+    --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+    --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+  --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+  --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+  --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; font-family: var(--font-body); color: var(--ink); line-height: 1.6;
+  background: radial-gradient(var(--dot) 1px, transparent 1.2px) 0 0 / 18px 18px, var(--bg);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.ring { position: fixed; right: -90px; bottom: -110px; width: 380px; height: 300px; border-radius: 50%; border: 34px solid var(--ring); transform: rotate(-12deg); pointer-events: none; z-index: 0; }
+.ring::after { content: ""; position: absolute; left: -64px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--ring); }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.win { background: var(--paper); border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.bar { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 4px 0 10px; background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--line); font-family: var(--font-pixel); font-size: 12px; letter-spacing: .02em; user-select: none; }
+.bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: pointer; padding: 0; }
+.ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+
+/* sidebar */
+.nav { position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 260px; display: flex; flex-direction: column; transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s; }
+.nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; }
+.node + .node { margin-top: 4px; }
+.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
+.node-h:hover { background: var(--bubble); }
+.node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
+.caret path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.node.open > .node-h .caret { transform: rotate(90deg); }
+.node.off > .node-h { color: var(--ink-3); cursor: default; }
+.node.off > .node-h:hover { background: none; }
+.node.off .caret, .node.link .caret { opacity: .35; }
+.node.link > .node-h { color: var(--ink-2); }
+.kids { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+.node.open > .kids { grid-template-rows: 1fr; }
+.kids > ul { overflow: hidden; list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px dashed var(--line); }
+.leaf { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 6px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-size: 13.5px; color: var(--ink-2); text-decoration: none; }
+.leaf .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf:hover { color: var(--ink); background: var(--bubble); }
+.leaf.on { color: var(--blue); background: var(--bubble); font-weight: 600; }
+.scrim { display: none; }
+
+/* main */
+.main { position: relative; z-index: 1; margin-left: 292px; padding: 16px 24px 80px 16px; transition: margin-left .28s cubic-bezier(.3,.7,.2,1); }
+.wrap { max-width: 1120px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: pointer; padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+.sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+#navBtn { display: none; }
+body.nav-closed #navBtn { display: grid; }
+body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
+body.nav-closed .main { margin-left: 0; }
+.search { position: relative; display: flex; align-items: center; width: min(300px, 100%); height: 38px; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.search svg { position: absolute; left: 11px; width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.7; fill: none; pointer-events: none; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none; padding: 0 34px; font: 14px var(--font-body); color: var(--ink); }
+.search input::placeholder { color: var(--ink-3); }
+.search:focus-within { border-color: var(--blue); }
+.search kbd { position: absolute; right: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-soft); padding: 0 5px; line-height: 18px; }
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.icon-sun { display: none; }
+.is-dark .icon-sun { display: block; }
+.is-dark .icon-moon { display: none; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.filters button { cursor: pointer; height: 28px; padding: 0 11px; font-family: var(--font-pixel); font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper-solid); }
+.filters button .n { margin-left: 6px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); }
+.filters button:hover { color: var(--blue); border-color: var(--blue); }
+.filters button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.filters button[aria-pressed="true"] .n { color: var(--blue-ink); opacity: .75; }
+
+/* gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.card { background: var(--cell); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.card .img { display: block; width: 100%; padding: 0; border: 0; border-bottom: 1px solid var(--line); background: var(--say); cursor: zoom-in; }
+.card .img img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: var(--pos, center 35%); }
+.card .tx { padding: 14px 16px 16px; display: flex; flex-direction: column; height: 100%; }
+.card { display: flex; flex-direction: column; }
+.card .cr { margin-top: auto; padding-top: 10px; font-size: 11px; color: var(--ink-3); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .cr:hover { color: var(--blue); text-decoration: underline; }
+.card .cat { font-family: var(--font-pixel); font-size: 11px; color: var(--ink-3); }
+.card .en { display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 0; }
+.card .en h2 { flex: 1; margin: 0; font-family: var(--font-pixel); font-weight: 400; font-size: 17px; line-height: 1.35; }
+.copy { flex: none; display: grid; place-items: center; width: 26px; height: 26px; margin-top: -2px; padding: 0; cursor: pointer; color: var(--ink-3); background: var(--paper-solid); border: 1px solid var(--line-soft); }
+.copy:hover { color: var(--blue); border-color: var(--blue); }
+.copy svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+.copy.done { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.card .ko { margin: 1px 0 8px; font-size: 13.5px; color: var(--blue); font-weight: 600; }
+.card .d { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+.none { display: none; padding: 60px 0; text-align: center; font-family: var(--font-pixel); color: var(--ink-3); margin: 0; }
+.none.show { display: block; }
+
+/* lightbox */
+.lb { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; }
+.lb-scrim { position: absolute; inset: 0; background: rgba(8, 13, 44, .55); }
+.lb-win { position: relative; max-width: min(900px, 100%); max-height: calc(100vh - 48px); display: flex; flex-direction: column; background: var(--paper-solid); }
+.lb-win img { display: block; max-width: 100%; max-height: calc(100vh - 140px); object-fit: contain; margin: 0 auto; }
+.lb-cap { padding: 10px 14px; font-size: 13.5px; color: var(--ink-2); border-top: 1px solid var(--line); }
+body.lb-open { overflow: hidden; }
+
+@media (max-width: 899px) {
+  .nav { left: 0; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: none; border-width: 0 1px 0 0; transform: translateX(-100%); opacity: 1; }
+  body.nav-open .nav { transform: none; box-shadow: 6px 0 0 var(--shadow); }
+  body.nav-closed .nav { transform: translateX(-100%); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(8, 13, 44, .35); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+  .main, body.nav-closed .main { margin-left: 0; padding: 12px 16px 60px; }
+  #navBtn { display: grid; }
+  .title h1 { font-size: 22px; }
+  .search { order: 5; width: 100%; }
+  .search kbd { display: none; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters button { flex: none; }
+  .gallery { grid-template-columns: 1fr; }
+  .lb { padding: 12px; }
+  .ring { width: 260px; height: 200px; border-width: 24px; right: -110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="ring" aria-hidden="true"></div>
+
+<aside class="nav win" id="nav" aria-label="메뉴">
+  <div class="bar">
+    <span class="ttl">기획 노트</span>
+    <button class="ctl" id="navClose" aria-label="메뉴 닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+  </div>
+  <nav class="tree" id="tree"></nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="wrap">
+    <header class="top">
+      <button class="sq" id="navBtn" aria-label="메뉴 열기"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+      <div class="title"><h1>프롬프트 용어</h1><span class="n" id="count"></span></div>
+      <label class="search">
+        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4L14 14"/></svg>
+        <input id="q" type="search" placeholder="용어 또는 설명 검색" autocomplete="off" aria-label="용어 또는 설명 검색">
+        <kbd>/</kbd>
+      </label>
+      <button class="sq" id="themeBtn" aria-label="화면 테마 전환">
+        <svg class="icon-moon" viewBox="0 0 16 16"><path d="M13 9.6A5.6 5.6 0 0 1 6.4 3a5.6 5.6 0 1 0 6.6 6.6z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg>
+      </button>
+    </header>
+    <div class="filters" id="filters" role="group" aria-label="분류"></div>
+    <div class="gallery" id="gallery"></div>
+    <p class="none" id="none">검색 결과 없음</p>
+  </div>
+</main>
+
+<div class="lb" id="lb" hidden>
+  <div class="lb-scrim" data-close></div>
+  <figure class="lb-win win" role="dialog" aria-modal="true" style="margin:0">
+    <div class="bar"><span class="ttl" id="lbTitle"></span><button class="ctl" data-close aria-label="닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button></div>
+    <img id="lbImg" alt="">
+  </figure>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   분류 — 순서대로 표시
+   ════════════════════════════════════════════ */
+const CATS = [
+  { id: 'light',   title: '빛·조명' },
+  { id: 'camera',  title: '카메라·구도' },
+  { id: 'lens',    title: '렌즈·초점' },
+  { id: 'texture', title: '재질·질감' },
+  { id: 'style',   title: '화풍·스타일' },
+  { id: 'motion',  title: '영상 카메라 움직임' },
+];
+
+/* ════════════════════════════════════════════
+   용어 — 추가는 여기서
+   en: 프롬프트에 쓰는 영문 명칭(복사 대상), ko: 한글 명칭, cat: 분류 id,
+   d: 설명, img: 예시 이미지 경로(선택, images 폴더) — 카드에는 16:9로 잘려 보임,
+   pos: 잘릴 때 보여 줄 위치(선택, 예: 'center 20%' = 위쪽 위주)
+   ════════════════════════════════════════════ */
+const TERMS = [
+  /* 빛·조명 */
+  { en: 'Subsurface Scattering', ko: '표면하 산란', cat: 'light', img: 'images/subsurface-scattering.webp',
+    d: '빛이 반투명한 물질의 표면을 통과한 뒤, 내부에서 여러 번 반사·확산(산란)되다가 다시 표면 밖으로 빠져나오는 광학 현상.' },
+  { en: 'Rim Light', img: 'images/rim-light.jpg', cr: { by: 'William H. Majoros', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:Egrets-rim-lighting.jpg' }, ko: '림 라이트', cat: 'light',
+    d: '피사체 뒤쪽에서 비춰 윤곽선만 가늘게 빛나게 하는 조명. 인물과 배경이 또렷하게 분리된다.' },
+  { en: 'Backlighting', img: 'images/backlighting.jpg', cr: { by: 'Dwight Sipler from Stow, MA, USA', lic: 'CC BY 2.0', src: 'https://commons.wikimedia.org/wiki/File:Gillie_Backlit_(5646498382).jpg' }, ko: '역광', cat: 'light',
+    d: '광원이 피사체 바로 뒤에 있는 상태. 실루엣이 생기거나 머리카락 가장자리가 빛난다.' },
+  { en: 'Golden Hour', img: 'images/golden-hour.jpg', cr: { by: 'Candra Firmansyah', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Golden_hour_at_bekol_savannah.jpg' }, ko: '골든 아워', cat: 'light',
+    d: '해 뜬 직후와 해 지기 직전. 낮고 따뜻한 주황빛에 그림자가 길게 늘어진다.' },
+  { en: 'Blue Hour', img: 'images/blue-hour.jpg', cr: { by: 'King of Hearts', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Lower_Manhattan_from_Jersey_City_September_2020_panorama.jpg' }, ko: '블루 아워', cat: 'light',
+    d: '해가 진 직후나 뜨기 직전, 하늘 전체가 짙은 푸른빛으로 물드는 시간대.' },
+  { en: 'Volumetric Lighting', img: 'images/volumetric-lighting.jpg', cr: { by: 'Brocken Inaglory', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:Crepuscular_Rays_in_GGP.jpg' }, ko: '볼류메트릭 라이트', cat: 'light',
+    d: '공기 중 먼지나 안개에 빛줄기가 비쳐 눈에 보이는 효과. 창문 틈이나 숲 사이로 내리는 빛살(God Rays)이 대표적이다.' },
+  { en: 'Chiaroscuro', img: 'images/chiaroscuro.jpg', cr: { by: 'Caravaggio', lic: 'Public domain', src: 'https://commons.wikimedia.org/wiki/File:Caravaggio_-_Boy_Bitten_by_a_Lizard.jpg' }, ko: '키아로스쿠로 (명암법)', cat: 'light',
+    d: '밝은 부분과 어두운 부분의 대비를 강하게 주는 기법. 어둠 속에서 얼굴 한쪽만 빛을 받는 극적인 분위기를 만든다.' },
+  { en: 'Soft Light', img: 'images/soft-light.jpg', cr: { by: 'Lies Thru a Lens', lic: 'CC BY 2.0', src: 'https://commons.wikimedia.org/wiki/File:Natural_Light_Portrait_of_Rosie_(20710648621).jpg' }, ko: '부드러운 빛', cat: 'light',
+    d: '흐린 날이나 커튼을 거친 빛처럼 넓게 퍼지는 빛. 그림자 경계가 흐릿해 피부가 매끈해 보인다. 반대는 Hard Light.' },
+  { en: 'Hard Light', ko: '강한 빛', cat: 'light',
+    d: '한낮 햇빛처럼 작고 강한 광원에서 오는 빛. 그림자 경계가 선명하고 대비가 크다.' },
+  { en: 'Caustics', img: 'images/caustics.jpg', cr: { by: 'Drakonfly', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Water_Ripples.jpg' }, ko: '커스틱', cat: 'light',
+    d: '물이나 유리를 통과한 빛이 바닥에 일렁이는 밝은 무늬를 만드는 현상. 수영장 바닥의 물결무늬가 대표적이다.' },
+
+  /* 카메라·구도 */
+  { en: 'Low Angle', img: 'images/low-angle.jpg', cr: { by: 'Hirho', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Daimy%C5%8Dmachi_Church_the_low-angle_shot_of_the_bell_tower_Daimy%C5%8D_2-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20250901_162307.jpg' }, ko: '로우 앵글', cat: 'camera',
+    d: '아래에서 올려다보며 찍는 각도. 피사체가 크고 당당하거나 위압적으로 보인다.' },
+  { en: 'High Angle', img: 'images/high-angle.jpg', cr: { by: 'Collins, Tudor Washington, 1898-1970, photographer', lic: 'CC BY 4.0', src: 'https://commons.wikimedia.org/wiki/File:High_angle_view_of_people_in_a_boat_(AM_86538-2).jpg' }, ko: '하이 앵글', cat: 'camera',
+    d: '위에서 내려다보며 찍는 각도. 피사체가 작고 약해 보인다.' },
+  { en: "Bird's-eye View", img: 'images/bird-s-eye-view.jpg', cr: { by: 'Donatas Dabravolskas', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Top_Down_View_of_Copacabana_Mosaic_and_Palm_Trees_3.jpg' }, ko: '버즈아이 뷰 (부감)', cat: 'camera',
+    d: '새가 내려다보듯 바로 위에서 수직으로 찍은 시점. 지도나 배치도처럼 공간 구성이 한눈에 보인다.' },
+  { en: 'Dutch Angle', img: 'images/dutch-angle.jpg', cr: { by: 'Tobias ToMar Maier', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:Intentional_camera_tilt_or_Dutch_angle_-_example_in_fashion_photography_for_filling_the_frame_-_ModelTanja.jpg' }, ko: '더치 앵글', cat: 'camera',
+    d: '카메라를 옆으로 기울여 수평선이 비스듬해지는 구도. 불안하거나 긴장된 느낌을 준다.' },
+  { en: 'Over-the-shoulder Shot', img: 'images/over-the-shoulder-shot.jpg', cr: { by: 'Lyncconf Games', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Over_Shoulder_shots_of_a_Gamer.jpg' }, ko: '오버 더 숄더', cat: 'camera',
+    d: '한 사람의 어깨 너머로 상대를 찍는 구도. 대화 장면에서 자주 쓴다.' },
+  { en: 'Extreme Close-up', img: 'images/extreme-close-up.jpg', cr: { by: 'Tomas Fernando Camargo', lic: 'CC0', src: 'https://commons.wikimedia.org/wiki/File:Extreme_close-up_shot_of_the_eye_of_Cuban_news_anchor_Armando_Ramirez_Diaz.jpg' }, ko: '익스트림 클로즈업', cat: 'camera',
+    d: '눈, 입술, 손끝처럼 일부분만 화면 가득 채우는 촬영. Close-up은 얼굴 전체, Medium Shot은 허리 위.' },
+  { en: 'Wide Shot', img: 'images/wide-shot.jpg', cr: { by: 'Dietmar Rabich', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Merfeld,_Feldweg_am_M%C3%BChlenbach_--_2021_--_4278-80.jpg' }, ko: '와이드 숏 (전경)', cat: 'camera',
+    d: '인물과 주변 환경을 넓게 담는 촬영. 장소와 상황을 설명할 때 쓴다.' },
+  { en: 'Rule of Thirds', img: 'images/rule-of-thirds.jpg', cr: { by: 'Max Nonnenbruch', lic: 'Public domain', src: 'https://commons.wikimedia.org/wiki/File:Rule_of_thirds_applied_on_M%C3%A4dchen_am_Strand.jpg' }, ko: '삼분할 구도', cat: 'camera',
+    d: '화면을 가로세로 3등분한 선의 교차점에 피사체를 두는 구도. 가운데 배치보다 자연스럽고 안정적이다.' },
+  { en: 'Symmetrical Composition', img: 'images/symmetrical-composition.jpg', cr: { by: 'Radek Kucharski from Warsaw, Poland', lic: 'CC BY 2.0', src: 'https://commons.wikimedia.org/wiki/File:Architecture_Symmetry_(51058927503).jpg' }, ko: '대칭 구도', cat: 'camera',
+    d: '화면 중앙을 기준으로 좌우가 거울처럼 맞는 구도. 정돈되고 인위적인 느낌을 준다.' },
+
+  /* 렌즈·초점 */
+  { en: 'Bokeh', img: 'images/bokeh.jpg', cr: { by: 'Nayuki from Toronto, Canada', lic: 'CC BY 2.0', src: 'https://commons.wikimedia.org/wiki/File:Christmas_tree_lights_in_bokeh_(4274605105).jpg' }, ko: '보케', cat: 'lens',
+    d: '초점이 맞지 않은 배경의 빛이 동그란 빛망울로 흐려지는 효과. 밤거리 조명을 배경으로 한 인물 사진에서 흔하다.' },
+  { en: 'Shallow Depth of Field', img: 'images/shallow-depth-of-field.jpg', cr: { by: 'Subhrajyoti07', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Nelumbo_nucifera,_also_known_as_Indian_lotus_in_bud_stage_(Image_7_of_7).jpg' }, ko: '얕은 심도', cat: 'lens',
+    d: '초점이 맞는 범위가 좁아 피사체만 선명하고 앞뒤가 흐려지는 상태. 시선을 피사체에 모은다.' },
+  { en: 'Deep Focus', img: 'images/deep-focus.jpg', cr: { by: 'Dietmar Rabich', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Grand_Canyon_(Arizona,_USA),_Luftaufnahme_--_2012_--_6009.jpg' }, ko: '깊은 심도', cat: 'lens',
+    d: '앞쪽부터 먼 배경까지 모두 선명한 상태. 풍경이나 건축 사진에 쓴다.' },
+  { en: 'Fisheye Lens', img: 'images/fisheye-lens.jpg', cr: { by: 'Thomas Roberts', lic: 'CC BY-SA 2.0', src: 'https://commons.wikimedia.org/wiki/File:Matchborough_Skatepark_2008_-_Fisheye_Lens_-_geograph.org.uk_-_8070975.jpg' }, ko: '어안 렌즈', cat: 'lens',
+    d: '시야가 180도 가까이 넓은 렌즈. 가장자리가 둥글게 휘어 과장되고 역동적인 느낌을 준다.' },
+  { en: 'Macro Shot', img: 'images/macro-shot.jpg', cr: { by: 'U3189981', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Macro_Photography_Bee.jpg' }, ko: '매크로 (접사)', cat: 'lens',
+    d: '곤충, 물방울, 꽃술처럼 아주 작은 대상을 크게 확대해 찍는 촬영.' },
+  { en: 'Tilt-shift', img: 'images/tilt-shift.jpg', cr: { by: 'Miguel Mendez from Malahide, Ireland', lic: 'CC BY 2.0', src: 'https://commons.wikimedia.org/wiki/File:Boat_miniature_fake_(tilt-shift)_(6568594193).jpg' }, ko: '틸트 시프트', cat: 'lens',
+    d: '화면 위아래를 흐리게 처리해 실제 풍경이 미니어처 모형처럼 보이게 하는 효과.' },
+  { en: 'Long Exposure', img: 'images/long-exposure.jpg', cr: { by: 'Martin Falbisoner', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:London_Eye_at_Night_(long_exposure).JPG' }, ko: '장노출', cat: 'lens',
+    d: '셔터를 오래 열어 움직임을 흔적으로 남기는 기법. 자동차 불빛은 선이 되고 흐르는 물은 비단처럼 뿌옇게 된다.' },
+  { en: 'Lens Flare', img: 'images/lens-flare.jpg', cr: { by: 'Hustvedt', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:CCTV_Lens_flare.jpg' }, ko: '렌즈 플레어', cat: 'lens',
+    d: '강한 빛이 렌즈에 들어와 화면에 빛 번짐이나 원형 빛 조각이 생기는 현상. 영화 같은 느낌을 줄 때 일부러 넣는다.' },
+
+  /* 재질·질감 */
+  { en: 'Translucent', img: 'images/translucent.jpg', cr: { by: 'ZHANG MIANS 2021', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:KMM_PFL_3rd_St_bathroom_frosted_glass_window_August_2021_SS2.jpg' }, ko: '반투명', cat: 'texture',
+    d: '빛은 통과하지만 뒤가 또렷이 보이지 않는 재질. 젖빛 유리, 얇은 천, 옥.' },
+  { en: 'Iridescent', img: 'images/iridescent.jpg', cr: { by: 'Brocken Inaglory', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:Soap_bubble_sky.jpg' }, ko: '이리데센트 (무지갯빛)', cat: 'texture',
+    d: '보는 각도에 따라 색이 무지개처럼 바뀌는 표면. 비눗방울, 전복 껍데기, 홀로그램 포장지.' },
+  { en: 'Matte / Glossy', img: 'images/matte-glossy.jpg', cr: { by: 'PattayaPatrol', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:DFC_0315_Glossy_dark_cherries_bobbing_in_a_vibrant_red_gelatin_glaze.jpg' }, ko: '무광 / 유광', cat: 'texture',
+    d: 'Matte는 빛 반사 없이 차분한 표면, Glossy는 반짝이며 주변이 비치는 표면.' },
+  { en: 'Brushed Metal', img: 'images/brushed-metal.jpg', cr: { by: 'Gordeonbleu (talk)', lic: 'Public domain', src: 'https://commons.wikimedia.org/wiki/File:Brushed_metal.jpg' }, ko: '헤어라인 금속', cat: 'texture',
+    d: '한 방향으로 가는 결이 나 있는 금속 표면. 노트북이나 가전제품 외장에서 볼 수 있다.' },
+  { en: 'Film Grain', img: 'images/film-grain.jpg', cr: { by: 'Wiley.andrew.r', lic: 'CC0', src: 'https://commons.wikimedia.org/wiki/File:Tmax100_Grain.jpg' }, ko: '필름 그레인', cat: 'texture',
+    d: '필름 사진 특유의 자글자글한 입자감. 디지털 이미지에 아날로그 느낌을 더한다.' },
+
+  /* 화풍·스타일 */
+  { en: 'Cinematic', ko: '시네마틱', cat: 'style',
+    d: '영화 한 장면처럼 보이게 하는 표현. 넓은 화면비, 극적인 조명, 색 보정이 함께 들어간다.' },
+  { en: 'Isometric', img: 'images/isometric.jpg', cr: { by: '1Atomius', lic: 'CC BY-SA 3.0', src: 'https://commons.wikimedia.org/wiki/File:Virtucityversion8.006screenshot.JPG' }, ko: '아이소메트릭', cat: 'style',
+    d: '비스듬히 위에서 본 입체를 원근 없이 그리는 방식. 게임 맵이나 서비스 소개 일러스트에 많이 쓴다.' },
+  { en: 'Isometric Infographic', ko: '아이소메트릭 인포그래픽', cat: 'style',
+    d: '아이소메트릭 시점의 입체 블록으로 구조나 흐름을 설명하는 인포그래픽. 서비스 구성도, 데이터 흐름, 공장·도시 같은 공간을 한눈에 보여 줄 때 쓴다. "isometric infographic, clean, pastel colors, white background"처럼 색감·배경과 함께 지정하면 결과가 안정적이다.' },
+  { en: 'Character Turnaround', img: 'images/turnaround.jpg', cr: { by: 'Blender Foundation', lic: 'CC BY 4.0', src: 'https://commons.wikimedia.org/wiki/File:Spring-concept_art-Spring.png' }, ko: '캐릭터 턴어라운드 (다면도)', cat: 'style',
+    d: '같은 캐릭터를 앞·옆·뒤에서 본 모습을 한 장에 나란히 그린 설정 그림. 여러 장면에서 생김새가 흔들리지 않게 하는 기준이 되고, 2D 그림을 3D 모델로 바꿀 때 입력으로 쓴다. "character turnaround sheet, front, side, back view, same character, neutral pose, plain background"처럼 지정한다.' },
+  { en: 'Concept Art', img: 'images/concept-art.jpg', cr: { by: 'Ryzom', lic: 'CC BY-SA 2.0', src: 'https://commons.wikimedia.org/wiki/File:Ryzom_environmental_concept_art_120.jpg' }, ko: '콘셉트 아트', cat: 'style',
+    d: '게임·영화를 만들기 전에 세계, 장소, 캐릭터가 어떤 모습일지 먼저 그려 보는 설정 그림. 완성작이 아니라 제작팀이 같은 그림을 보고 만들기 위한 기준이다. 기존 화풍 이미지를 함께 넣고 "concept art of [장소], same art style"처럼 요청하면 레벨마다 분위기를 맞출 수 있다.' },
+  { en: 'Flat Illustration', img: 'images/flat-illustration.jpg', cr: { by: 'Zombkid', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Laptop-coffee-flat-design-by-david-mendoza.png' }, ko: '플랫 일러스트', cat: 'style',
+    d: '그림자와 질감을 거의 빼고 단색 면으로 그리는 일러스트. 앱 화면이나 아이콘에 흔하다.' },
+  { en: 'Low Poly', img: 'images/low-poly.jpg', cr: { by: 'Elionas', lic: 'CC0', src: 'https://commons.wikimedia.org/wiki/File:Low_Poly_Kingfisher.jpg' }, ko: '로우 폴리', cat: 'style',
+    d: '적은 수의 삼각형 면으로 각지게 만든 3D 스타일.' },
+  { en: 'Claymation', img: 'images/claymation.jpg', cr: { by: 'Sviridov, Max', lic: 'Public domain', src: 'https://commons.wikimedia.org/wiki/File:Animacion-con-plastilina-y-clay-animation-pelicula-Kuzmich-153.jpg' }, ko: '클레이메이션', cat: 'style',
+    d: '찰흙 인형으로 만든 듯한 질감과 손맛이 있는 스타일.' },
+  { en: 'Pixel Art', img: 'images/pixel-art.jpg', cr: { by: 'JayTholen', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Pixel_Art_Background.png' }, ko: '픽셀 아트', cat: 'style',
+    d: '작은 네모 점(픽셀)을 하나하나 찍어 그린 듯한 레트로 게임 스타일.' },
+  { en: 'Watercolor', img: 'images/watercolor.jpg', cr: { by: 'Tatiana Yagunova / Татьяна Ягунова', lic: 'CC BY-SA 4.0', src: 'https://commons.wikimedia.org/wiki/File:Hansestadt_Lubeck_Tatiana_Yagunova_Watercolor_painting_2014.jpg' }, ko: '수채화', cat: 'style',
+    d: '물감이 번지고 종이 결이 비치는 수채화 느낌.' },
+  { en: 'Double Exposure', img: 'images/double-exposure.jpg', cr: { by: 'Miscellaneous Items in High Demand, PPOC, Library of Congress', lic: 'Public domain', src: 'https://commons.wikimedia.org/wiki/File:Double_exposure_%22spirit%22_photograph_of_girl_standing,_holding_flowers,_surrounded_by_spectral_figures_of_three_people)_-_photograph_by_G.S._Smallwood,_Chicago,_Ill_LCCN00650172.jpg' }, ko: '이중 노출', cat: 'style',
+    d: '두 이미지를 겹쳐 한 장에 담는 기법. 인물 실루엣 안에 숲이나 도시가 비쳐 보이는 식이다.' },
+
+  /* 영상 카메라 움직임 */
+  { en: 'Pan', img: 'images/motion-pan.svg', ko: '패닝', cat: 'motion',
+    d: '카메라 위치는 그대로 두고 좌우로 고개를 돌리듯 회전하는 움직임.' },
+  { en: 'Tilt', img: 'images/motion-tilt.svg', ko: '틸트', cat: 'motion',
+    d: '카메라 위치는 그대로 두고 위아래로 고개를 끄덕이듯 회전하는 움직임.' },
+  { en: 'Dolly In / Push In', img: 'images/motion-dolly-in.svg', ko: '돌리 인 (푸시 인)', cat: 'motion',
+    d: '카메라 자체가 피사체 쪽으로 천천히 다가가는 움직임. 긴장감이나 집중을 끌어올린다. 반대는 Dolly Out.' },
+  { en: 'Dolly Zoom', img: 'images/motion-dolly-zoom.svg', ko: '돌리 줌', cat: 'motion',
+    d: '카메라는 다가가면서 렌즈는 반대로 줌아웃해, 인물 크기는 그대로인데 배경만 늘어나거나 줄어드는 효과. 현기증 나는 느낌을 준다.' },
+  { en: 'Tracking Shot', img: 'images/motion-tracking.svg', ko: '트래킹 숏', cat: 'motion',
+    d: '걸어가거나 달리는 피사체를 옆이나 뒤에서 함께 따라가며 찍는 움직임.' },
+  { en: 'Orbit Shot', img: 'images/motion-orbit.svg', ko: '오빗 숏', cat: 'motion',
+    d: '피사체를 중심에 두고 카메라가 주위를 원을 그리며 도는 움직임. 제품이나 인물을 입체적으로 보여 준다.' },
+  { en: 'Drone Shot / Aerial Shot', img: 'images/motion-drone.svg', ko: '드론 숏 (항공 촬영)', cat: 'motion',
+    d: '높은 곳에서 넓게 내려다보며 날아가듯 찍는 영상. 도입부에서 장소를 보여 줄 때 쓴다.' },
+  { en: 'Slow Motion', img: 'images/motion-slow-motion.svg', ko: '슬로 모션', cat: 'motion',
+    d: '실제보다 느리게 재생해 순간을 길게 보여 주는 효과. 물방울이 튀는 장면 등.' },
+  { en: 'Time-lapse', img: 'images/motion-time-lapse.svg', ko: '타임랩스', cat: 'motion',
+    d: '긴 시간을 짧게 압축해 빠르게 보여 주는 영상. 구름 흐름, 꽃이 피는 과정, 도시의 하루.' },
+];
+
+const MENU = [
+  { id: 'it', title: 'IT 용어', href: '기획 노트.html' },
+  { id: 'dict', title: 'IT 기술 사전', href: 'IT 기술 사전.html' },
+  { id: 'job', title: '직무 용어', href: '직무 용어.html' },
+  { id: 'nlp', title: 'NLP 기초', href: 'NLP 기초.html' },
+  { id: 'ai', title: 'AI 팁', kids: [
+    { title: '활용 팁', href: 'AI 팁.html' },
+    { title: '프롬프트', href: '프롬프트.html' },
+    { title: '프롬프트 용어', current: true },
+  ]},
+  { id: 'ref', title: '참고 사이트', href: '레퍼런스.html' },
+  { id: 'api', title: '공개 API', href: '공개 API.html' },
+];
+
+/* ════════════════════════════════════════════ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const mq = matchMedia('(max-width: 899px)');
+const caret = '<svg class="caret" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>';
+const catTitle = id => (CATS.find(c => c.id === id) || {}).title || '';
+const count = id => TERMS.filter(t => t.cat === id).length;
+let cat = '';
+
+function renderTree() {
+  const openNodes = store.get('pn.ai.tree', ['ai']);
+  $('#tree').innerHTML = MENU.map(m => {
+    if (m.off) return `<div class="node off"><span class="node-h">${caret}${esc(m.title)}</span></div>`;
+    if (m.href) return `<div class="node link"><a class="node-h" href="${esc(m.href)}">${caret}${esc(m.title)}</a></div>`;
+    const open = openNodes.includes(m.id);
+    const kids = (m.kids || []).map(k => k.current
+      ? `<li><span class="leaf on">${esc(k.title)}<span class="n">${TERMS.length}</span></span></li>`
+      : `<li><a class="leaf" href="${esc(k.href)}">${esc(k.title)}</a></li>`).join('');
+    return `<div class="node${open ? ' open' : ''}" data-node="${m.id}">
+      <button class="node-h" aria-expanded="${open}">${caret}${esc(m.title)}</button>
+      <div class="kids"><ul>${kids}</ul></div></div>`;
+  }).join('');
+}
+
+function renderFilters() {
+  $('#filters').innerHTML = [['', '전체', TERMS.length], ...CATS.map(c => [c.id, c.title, count(c.id)])]
+    .map(([v, l, n]) => `<button data-cat="${v}" aria-pressed="${v === cat}">${esc(l)}<span class="n">${n}</span></button>`).join('');
+}
+
+const copyIcon = '<svg viewBox="0 0 14 14"><rect x="4.5" y="4.5" width="7.5" height="7.5"/><path d="M9.5 4.5V2H2v7.5h2.5"/></svg>';
+const doneIcon = '<svg viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7"/></svg>';
+function render() {
+  const raw = q.value.trim();
+  const ql = raw.toLowerCase();
+  const hl = t => ql ? String(t ?? '').split(new RegExp(`(${escRe(raw)})`, 'gi')).map((s, i) => i % 2 ? `<mark>${esc(s)}</mark>` : esc(s)).join('') : esc(t);
+  const order = CATS.map(c => c.id);
+  const list = TERMS
+    .filter(t => (!cat || t.cat === cat) && (!ql || [t.en, t.ko, t.d].join(' ').toLowerCase().includes(ql)))
+    .sort((a, b) => order.indexOf(a.cat) - order.indexOf(b.cat));
+  const credit = c => `이미지 ${c.by ? c.by + ' · ' : ''}${c.lic || ''} · Wikimedia Commons`;
+  $('#gallery').innerHTML = list.map(t => `
+    <article class="card">
+      ${t.img ? `<button class="img" data-img="${esc(t.img)}" data-cap="${esc(t.en + ' · ' + t.ko)}" aria-label="${esc(t.en)} 이미지 크게 보기"><img src="${esc(t.img)}" alt="${esc(t.en)} 예시" loading="lazy"${t.pos ? ` style="--pos:${esc(t.pos)}"` : ''}></button>` : ''}
+      <div class="tx">
+        <span class="cat">${esc(catTitle(t.cat))}</span>
+        <div class="en"><h2>${hl(t.en)}</h2><button class="copy" data-copy="${esc(t.en)}" aria-label="${esc(t.en)} 복사">${copyIcon}</button></div>
+        <p class="ko">${hl(t.ko)}</p>
+        <p class="d">${hl(t.d)}</p>
+        ${t.cr ? `<a class="cr" href="${esc(t.cr.src)}" target="_blank" rel="noopener">${esc(credit(t.cr))}</a>` : ''}
+      </div>
+    </article>`).join('');
+  $('#none').classList.toggle('show', !list.length);
+  $('#count').textContent = (ql || cat) ? `${list.length}/${TERMS.length}` : TERMS.length;
+}
+
+/* copy */
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); return true; } catch (e) {}
+  const ta = document.createElement('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove(); return ok;
+}
+$('#gallery').addEventListener('click', async e => {
+  const c = e.target.closest('.copy');
+  if (c) {
+    if (await copyText(c.dataset.copy)) {
+      c.classList.add('done'); c.innerHTML = doneIcon;
+      setTimeout(() => { c.classList.remove('done'); c.innerHTML = copyIcon; }, 1200);
+    }
+    return;
+  }
+  const im = e.target.closest('.img');
+  if (im) openLb(im.dataset.img, im.dataset.cap);
+});
+
+/* lightbox */
+let lastFocus = null;
+function openLb(src, cap) {
+  lastFocus = document.activeElement;
+  $('#lbImg').src = src; $('#lbImg').alt = cap; $('#lbTitle').textContent = cap;
+  $('#lb').hidden = false; document.body.classList.add('lb-open');
+  $('#lb .ctl').focus({ preventScroll: true });
+}
+function closeLb() {
+  if ($('#lb').hidden) return;
+  $('#lb').hidden = true; document.body.classList.remove('lb-open');
+  if (lastFocus) lastFocus.focus({ preventScroll: true });
+}
+$('#lb').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeLb(); });
+
+/* filters, search */
+const q = $('#q');
+q.addEventListener('input', render);
+$('#filters').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  cat = b.dataset.cat; renderFilters(); render();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== q && $('#lb').hidden && !e.ctrlKey && !e.metaKey) { e.preventDefault(); q.focus(); }
+  if (e.key === 'Escape') {
+    if (!$('#lb').hidden) closeLb();
+    else if (document.activeElement === q && q.value) { q.value = ''; render(); }
+    else if (document.body.classList.contains('nav-open')) setNav(false);
+  }
+});
+
+/* nav */
+function setNav(open) {
+  if (mq.matches) document.body.classList.toggle('nav-open', open);
+  else { document.body.classList.toggle('nav-closed', !open); store.set('pn.navClosed', !open); }
+}
+$('#navBtn').addEventListener('click', () => setNav(mq.matches ? !document.body.classList.contains('nav-open') : true));
+$('#navClose').addEventListener('click', () => setNav(false));
+$('#scrim').addEventListener('click', () => setNav(false));
+if (store.get('pn.navClosed', false)) document.body.classList.add('nav-closed');
+mq.addEventListener('change', () => document.body.classList.remove('nav-open'));
+$('#tree').addEventListener('click', e => {
+  const h = e.target.closest('.node:not(.off):not(.link) > .node-h');
+  if (!h) return;
+  const open = h.parentElement.classList.toggle('open');
+  h.setAttribute('aria-expanded', open);
+  store.set('pn.ai.tree', $$('.node.open').map(n => n.dataset.node));
+});
+
+/* theme */
+const dark = matchMedia('(prefers-color-scheme: dark)');
+function isDark() { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : dark.matches; }
+function syncThemeIcon() { document.body.classList.toggle('is-dark', isDark()); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('pn.theme', next); } catch (e) {}
+  syncThemeIcon();
+});
+dark.addEventListener('change', syncThemeIcon);
+
+renderTree();
+renderFilters();
+render();
+syncThemeIcon();
+</script>
+</body>
+</html>

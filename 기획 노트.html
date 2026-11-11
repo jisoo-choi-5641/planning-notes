@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기획 노트 · IT 용어</title>
+<meta name="description" content="AI 시대의 기획자가 알아두면 좋은 IT 용어, 직무 용어, AI 활용 팁 모음">
+<script>
+  try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --bg: #e9eef9;
+  --dot: rgba(47, 79, 224, .10);
+  --paper: rgba(250, 252, 255, .86);
+  --paper-solid: #f8faff;
+  --cell: #fbfcff;
+  --ink: #131d55;
+  --ink-2: #4b5a98;
+  --ink-3: #8593c4;
+  --blue: #2f4fe0;
+  --blue-ink: #ffffff;
+  --bar: #d4e2ff;
+  --bar-ink: #1b2a78;
+  --line: #9db2ef;
+  --line-soft: #d3ddf7;
+  --shadow: #a9bdf5;
+  --bubble: #e3ecff;
+  --say: #eef0f4;
+  --mark: #ffe58a;
+  --ring: #bcd6fb;
+  --font-pixel: 'Galmuri11', 'Galmuri9', ui-monospace, monospace;
+  --font-mono: 'Galmuri Mono 11', 'GalmuriMono11', ui-monospace, 'Consolas', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+    --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+    --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+    --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+  --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+  --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+  --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh;
+  font-family: var(--font-body); color: var(--ink); line-height: 1.6;
+  background: radial-gradient(var(--dot) 1px, transparent 1.2px) 0 0 / 18px 18px, var(--bg);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+/* grain + decorative ring */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.ring {
+  position: fixed; right: -90px; bottom: -110px; width: 380px; height: 300px; border-radius: 50%;
+  border: 34px solid var(--ring); transform: rotate(-12deg); pointer-events: none; z-index: 0;
+}
+.ring::after {
+  content: ""; position: absolute; left: -64px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--ring);
+}
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+
+/* ── window chrome ── */
+.win {
+  background: var(--paper); border: 1px solid var(--line);
+  box-shadow: 4px 4px 0 var(--shadow);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.bar {
+  display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 4px 0 10px;
+  background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--line);
+  font-family: var(--font-pixel); font-size: 12px; letter-spacing: .02em; user-select: none;
+}
+.bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .n { font-family: var(--font-mono); font-size: 11px; opacity: .7; }
+.ctl {
+  width: 22px; height: 22px; display: grid; place-items: center; flex: none;
+  border: 1px solid var(--line); background: var(--paper-solid); cursor: pointer; padding: 0;
+}
+.ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* ── sidebar ── */
+.nav {
+  position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 248px;
+  display: flex; flex-direction: column;
+  transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s;
+}
+.nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; }
+.node + .node { margin-top: 4px; }
+.node-h {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px;
+  border: 0; background: none; text-align: left; cursor: pointer;
+  font-family: var(--font-pixel); font-size: 13px;
+}
+.node-h:hover { background: var(--bubble); }
+.node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
+.caret path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.node.open > .node-h .caret { transform: rotate(90deg); }
+.node.off > .node-h { color: var(--ink-3); cursor: default; }
+.node.off > .node-h:hover { background: none; }
+.node.off .caret { opacity: .35; }
+.node.link > .node-h { color: var(--ink-2); text-decoration: none; }
+.node.link .caret { opacity: .35; }
+.kids { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+.node.open > .kids { grid-template-rows: 1fr; }
+.kids > ul { overflow: hidden; list-style: none; margin: 0; padding: 0 0 0 17px; }
+.kids ul { border-left: 1px dashed var(--line); margin-left: 12px; padding-left: 4px; }
+.leaf {
+  display: flex; align-items: baseline; gap: 8px; padding: 6px 8px; text-decoration: none;
+  font-size: 13.5px; color: var(--ink-2);
+}
+.leaf .num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf:hover { color: var(--ink); background: var(--bubble); }
+.leaf.on { color: var(--blue); background: var(--bubble); font-weight: 600; }
+.leaf.on .num { color: var(--blue); }
+
+.scrim { display: none; }
+
+/* ── main ── */
+.main { position: relative; z-index: 1; margin-left: 280px; padding: 16px 24px 80px 16px; transition: margin-left .28s cubic-bezier(.3,.7,.2,1); }
+.wrap { max-width: 1120px; }
+.top {
+  position: sticky; top: 0; z-index: 20; margin: -16px -24px 18px -16px; padding: 16px 24px 14px 16px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: linear-gradient(var(--bg) 70%, transparent);
+}
+.title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; letter-spacing: -.01em; line-height: 1.1; }
+.title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.sq {
+  width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: pointer; padding: 0;
+  background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow);
+}
+.sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+.sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+#navBtn { display: none; }
+body.nav-closed #navBtn { display: grid; }
+body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
+body.nav-closed .main { margin-left: 0; }
+
+.search {
+  position: relative; display: flex; align-items: center; width: min(340px, 100%); height: 38px;
+  background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow);
+}
+.search svg { position: absolute; left: 11px; width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.7; fill: none; pointer-events: none; }
+.search input {
+  flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none;
+  padding: 0 34px 0 34px; font: 14px var(--font-body); color: var(--ink);
+}
+.search input::placeholder { color: var(--ink-3); }
+.search:focus-within { border-color: var(--blue); }
+.search kbd {
+  position: absolute; right: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3);
+  border: 1px solid var(--line-soft); padding: 0 5px; line-height: 18px;
+}
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.icon-sun { display: none; }
+.is-dark .icon-sun { display: block; }
+.is-dark .icon-moon { display: none; }
+
+/* ── section windows ── */
+.sec { margin-bottom: 26px; scroll-margin-top: 84px; }
+.sec .bar { cursor: pointer; height: 34px; font-size: 13px; }
+.sec .bar .idx { font-family: var(--font-mono); font-size: 11px; opacity: .65; }
+.sec .ctl .v { transition: opacity .15s; }
+.sec.closed .ctl .v { opacity: 1; }
+.sec:not(.closed) .ctl .v { opacity: 0; }
+.sec .body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .25s; }
+.sec.closed .body { grid-template-rows: 0fr; }
+.sec.closed .bar { border-bottom-color: transparent; }
+body.searching .sec.closed .body { grid-template-rows: 1fr; }
+.grid {
+  overflow: hidden; display: grid; gap: 1px; background: var(--cell);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.sec[hidden] { display: none; }
+
+.term {
+  background: var(--cell); padding: 18px 20px 18px; scroll-margin-top: 90px; position: relative;
+  box-shadow: 1px 0 0 var(--line-soft), 0 1px 0 var(--line-soft), 1px 1px 0 var(--line-soft);
+}
+.term h3 { margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.term h3 a { text-decoration: none; font-family: var(--font-pixel); font-weight: 400; font-size: 17px; color: var(--ink); }
+.term h3 a:hover { color: var(--blue); }
+.term .en { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); font-weight: 400; }
+.term .d { margin: 0; font-size: 14.5px; }
+.say {
+  position: relative; margin: 12px 0 0 0; padding: 9px 12px; font-size: 13.5px; color: var(--ink-2);
+  background: var(--say); border-radius: 2px 12px 12px 12px; line-height: 1.55;
+}
+.say::before { content: "“"; font-family: var(--font-pixel); color: var(--blue); margin-right: 3px; }
+.rel { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.rel a {
+  font-family: var(--font-mono); font-size: 11.5px; text-decoration: none; color: var(--ink-2);
+  border: 1px solid var(--line-soft); padding: 1px 7px 1px 6px; background: var(--paper-solid);
+}
+.rel a::before { content: "→ "; color: var(--ink-3); }
+.rel a:hover { border-color: var(--blue); color: var(--blue); }
+.term.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { 0%, 30% { box-shadow: inset 0 0 0 2px var(--blue); } 100% { box-shadow: inset 0 0 0 2px transparent; } }
+
+.none { display: none; padding: 60px 0; text-align: center; font-family: var(--font-pixel); color: var(--ink-3); }
+.none.show { display: block; }
+
+/* ── mobile ── */
+@media (max-width: 899px) {
+  .nav { left: 0; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: none; border-width: 0 1px 0 0; transform: translateX(-100%); opacity: 1; }
+  body.nav-open .nav { transform: none; box-shadow: 6px 0 0 var(--shadow); }
+  body.nav-closed .nav { transform: translateX(-100%); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(8, 13, 44, .35); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+  .main, body.nav-closed .main { margin-left: 0; padding: 12px 16px 60px; }
+  .top { margin: -12px -16px 14px; padding: 12px 16px 12px; }
+  #navBtn { display: grid; }
+  .title h1 { font-size: 22px; }
+  .search { order: 5; width: 100%; }
+  .search kbd { display: none; }
+  .grid { grid-template-columns: 1fr; }
+  .term { padding: 16px; }
+  .ring { width: 260px; height: 200px; border-width: 24px; right: -110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } html { scroll-behavior: auto; } }
+@media print {
+  .nav, .top .sq, .search, .ring, body::before { display: none !important; }
+  .main { margin: 0 !important; }
+  .sec.closed .body { grid-template-rows: 1fr; }
+  .win { box-shadow: none; backdrop-filter: none; }
+}
+</style>
+</head>
+<body>
+<div class="ring" aria-hidden="true"></div>
+
+<aside class="nav win" id="nav" aria-label="메뉴">
+  <div class="bar">
+    <span class="ttl">기획 노트</span>
+    <button class="ctl" id="navClose" aria-label="메뉴 닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+  </div>
+  <nav class="tree" id="tree"></nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="wrap">
+    <header class="top">
+      <button class="sq" id="navBtn" aria-label="메뉴 열기"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+      <div class="title"><h1>IT 용어</h1><span class="n" id="count"></span></div>
+      <label class="search">
+        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4L14 14"/></svg>
+        <input id="q" type="search" placeholder="용어 검색" autocomplete="off" aria-label="용어 검색">
+        <kbd>/</kbd>
+      </label>
+      <button class="sq" id="themeBtn" aria-label="화면 테마 전환">
+        <svg class="icon-moon" viewBox="0 0 16 16"><path d="M13 9.6A5.6 5.6 0 0 1 6.4 3a5.6 5.6 0 1 0 6.6 6.6z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg>
+      </button>
+    </header>
+    <div id="content"></div>
+    <p class="none" id="none">검색 결과 없음</p>
+  </div>
+</main>
+
+<script>
+/* ════════════════════════════════════════════
+   용어 데이터 — 항목 추가는 여기서
+   id: 영문 소문자(링크 주소), t: 용어, en: 원어/풀네임,
+   d: 뜻, s: 실무에서 쓰는 예문, r: 관련 용어 id 목록
+   ════════════════════════════════════════════ */
+const DATA = [
+  { id: 'web', title: '웹·앱 기본', terms: [
+    { id: 'client-server', t: '클라이언트 / 서버', en: 'Client / Server',
+      d: '요청하는 쪽이 클라이언트, 요청을 받아 처리하고 결과를 돌려주는 쪽이 서버다. 브라우저와 앱은 클라이언트, 데이터를 저장하고 계산하는 컴퓨터는 서버.',
+      s: '이 정렬은 클라이언트에서 처리할까요, 서버에서 정렬해서 내려줄까요?', r: ['frontend', 'backend', 'api'] },
+    { id: 'frontend', t: '프론트엔드', en: 'Frontend · FE',
+      d: '사용자가 직접 보고 누르는 화면을 만드는 영역. HTML·CSS·JavaScript와 React, Vue 같은 프레임워크를 쓴다.',
+      s: '버튼 노출 조건만 바뀌는 거라 프론트 작업만으로 끝나요.', r: ['html-css', 'javascript', 'react-vue', 'backend', 'ssr-csr'] },
+    { id: 'html-css', t: 'HTML / CSS', en: 'HyperText Markup Language / Cascading Style Sheets',
+      d: '웹페이지의 뼈대와 옷. HTML은 제목·문단·버튼·이미지 같은 내용과 구조를, CSS는 색·글꼴·간격·배치 같은 모양을 정한다.',
+      s: '문구 위치만 바뀌는 건 CSS 수정이라 기능 테스트 없이 바로 반영할 수 있어요.', r: ['javascript', 'frontend', 'responsive'] },
+    { id: 'javascript', t: 'JavaScript', en: 'JavaScript · JS',
+      d: '브라우저에서 화면을 움직이게 하는 프로그래밍 언어. 버튼을 누르면 창이 열리거나, 서버에서 데이터를 받아 목록을 다시 그리는 동작을 담당한다. 타입을 엄격하게 검사하도록 확장한 버전이 TypeScript(TS)다.',
+      s: '탭을 눌렀을 때 새로고침 없이 내용만 바뀌게 하는 건 JS로 처리돼요.', r: ['html-css', 'react-vue', 'frontend'] },
+    { id: 'react-vue', t: 'React / Vue', en: 'JavaScript UI Framework · Library',
+      d: '화면을 버튼·카드·목록 같은 컴포넌트(재사용 가능한 조각)로 나눠 만들게 해 주는 JavaScript 도구. React는 Meta가, Vue는 오픈소스 커뮤니티가 만들었고, 국내 서비스는 React 비중이 높다. React 기반으로 SSR까지 지원하는 Next.js도 자주 쓰인다.',
+      s: '이 카드는 컴포넌트로 만들어 두면 메인과 검색 결과에서 같이 쓸 수 있어요.', r: ['javascript', 'design-system', 'ssr-csr'] },
+    { id: 'backend', t: '백엔드', en: 'Backend · BE',
+      d: '화면 뒤에서 데이터 저장·조회, 권한 확인, 결제 같은 비즈니스 로직을 처리하는 영역. 서버와 데이터베이스를 다룬다.',
+      s: '노출 기준이 "최근 30일 구매자"로 바뀌면 백엔드 쿼리도 같이 수정해야 합니다.', r: ['frontend', 'database', 'api'] },
+    { id: 'domain-dns', t: '도메인 / DNS', en: 'Domain Name System',
+      d: '사람이 읽는 주소(example.com)를 서버의 IP 주소로 바꿔 주는 인터넷의 전화번호부. 도메인은 그 주소 이름이다.',
+      s: '새 도메인 연결은 DNS 반영까지 길게는 하루가 걸릴 수 있어요. 오픈 일정에 여유를 두세요.', r: ['url', 'https'] },
+    { id: 'url', t: 'URL · 쿼리 파라미터', en: 'Uniform Resource Locator',
+      d: '웹 자원의 주소. 물음표(?) 뒤에 key=value 형태로 붙는 값이 쿼리 파라미터로, 필터·정렬 상태나 유입 경로(utm)를 전달한다.',
+      s: '필터 상태를 쿼리 파라미터에 담아서, 링크를 공유받은 사람도 같은 목록을 보게 해 주세요.', r: ['deeplink', 'event-log'] },
+    { id: 'https', t: 'HTTP / HTTPS', en: 'HyperText Transfer Protocol (Secure)',
+      d: '브라우저와 서버가 데이터를 주고받는 규칙. HTTPS는 이 통신을 암호화한 버전으로, 지금은 사실상 필수다.',
+      s: '외부 이미지가 http 주소라 HTTPS 페이지에서 깨져 보여요.', r: ['status-code', 'encryption'] },
+    { id: 'status-code', t: '상태 코드', en: 'HTTP Status Code',
+      d: '서버가 요청 결과를 알려 주는 세 자리 숫자. 2xx 성공, 3xx 이동, 4xx 요청 쪽 문제(404 없음, 401 인증 필요, 403 권한 없음), 5xx 서버 문제.',
+      s: '로그인 안 한 상태로 들어오면 403 말고 401 내려서 로그인 화면으로 보내 주세요.', r: ['https', 'authn-authz', 'incident'] },
+    { id: 'cookie-session', t: '쿠키 / 세션 / 로컬 스토리지', en: 'Cookie / Session / Local Storage',
+      d: '사용자 상태를 기억하는 방법들. 쿠키는 브라우저에 저장되어 요청마다 서버로 함께 가고, 세션은 서버에 저장되며, 로컬 스토리지는 브라우저 안에만 남는다.',
+      s: '자동 로그인 유지 기간은 쿠키 만료일을 며칠로 잡느냐의 문제예요.', r: ['token', 'cache'] },
+    { id: 'cache', t: '캐시', en: 'Cache',
+      d: '자주 쓰는 데이터를 가까운 곳에 임시로 저장해 두고 빠르게 꺼내 쓰는 것. 빠른 대신, 수정한 내용이 바로 안 보이는 원인이 되기도 한다.',
+      s: '배포했는데 그대로면 캐시 때문일 수 있어요. 강력 새로고침(Ctrl+Shift+R) 해 보세요.', r: ['cdn', 'cookie-session'] },
+    { id: 'responsive', t: '반응형 웹', en: 'Responsive Web',
+      d: '화면 너비에 맞춰 레이아웃이 바뀌는 웹. 레이아웃이 바뀌는 기준 너비를 브레이크포인트라고 부른다.',
+      s: '브레이크포인트는 모바일 360, 태블릿 768, PC 1280 세 구간으로 정의하겠습니다.', r: ['design-system', 'native-web-hybrid'] },
+    { id: 'native-web-hybrid', t: '네이티브 / 웹앱 / 하이브리드 앱', en: 'Native / Web App / Hybrid',
+      d: '네이티브는 iOS·Android 전용 언어로 만든 앱, 웹앱은 브라우저에서 돌아가는 앱, 하이브리드는 앱 껍데기 안에 웹 화면(웹뷰)을 띄우는 방식이다.',
+      s: '이 화면은 웹뷰라서 앱 심사 없이 바로 수정할 수 있어요.', r: ['webview', 'deploy'] },
+    { id: 'webview', t: '웹뷰', en: 'WebView',
+      d: '앱 안에서 웹페이지를 보여 주는 창. 앱 업데이트 없이 내용을 바꿀 수 있지만, 카메라·푸시 같은 기기 기능은 앱과 따로 연결해야 한다.',
+      s: '이벤트 페이지는 웹뷰로 띄우고, 공유 버튼만 네이티브 기능을 호출하죠.', r: ['native-web-hybrid', 'deeplink'] },
+    { id: 'ssr-csr', t: 'SSR / CSR', en: 'Server-Side / Client-Side Rendering',
+      d: '화면을 서버에서 완성해서 보내는지(SSR), 브라우저가 데이터를 받아 직접 그리는지(CSR)의 차이. 첫 로딩 속도와 검색 노출에 영향을 준다.',
+      s: '검색 유입이 중요한 상품 상세는 SSR로 가야 합니다.', r: ['seo', 'frontend'] },
+    { id: 'seo', t: 'SEO', en: 'Search Engine Optimization',
+      d: '검색 결과에 잘 노출되도록 페이지 구조, 메타 정보(제목·설명), 로딩 속도 등을 다듬는 일.',
+      s: '페이지마다 title과 description을 따로 넣을 수 있게 어드민에 필드를 추가해 주세요.', r: ['geo', 'ssr-csr', 'url'] },
+    { id: 'geo', t: 'AEO / GEO', en: 'Answer / Generative Engine Optimization',
+      d: 'ChatGPT·Perplexity·검색 AI 요약처럼 AI가 답을 만들어 줄 때 우리 콘텐츠가 인용되고 추천되도록 다듬는 일. AEO는 답변에 들어갈 명확한 정의·목록·비교를, GEO는 AI가 여러 선택지 중 우리를 고를 근거를 만드는 쪽을 말한다. GEO를 AI 답변 최적화 전체를 가리키는 말로 넓게 쓰기도 한다.',
+      s: '문단마다 따로 떼어 읽어도 뜻이 통하게 쓰고, 기관·인물 정보는 구조화 데이터로 표시해 두죠.', r: ['seo', 'llm'] },
+  ]},
+
+  { id: 'data', title: '데이터·API', terms: [
+    { id: 'api', t: 'API', en: 'Application Programming Interface',
+      d: '프로그램끼리 정해진 형식으로 기능과 데이터를 주고받는 창구. 식당의 주문서처럼, 무엇을 어떻게 요청하면 무엇을 돌려주는지 약속해 둔 것이다.',
+      s: '지도 API를 쓰면 지도를 직접 만들 필요가 없어요. 대신 호출량에 따라 과금돼요.', r: ['endpoint', 'rest', 'sdk'] },
+    { id: 'endpoint', t: '엔드포인트', en: 'Endpoint',
+      d: 'API에서 특정 기능을 부르는 주소. 예: GET /orders/123 은 123번 주문 조회.',
+      s: '주문 상세에 배송 정보를 붙이려면 엔드포인트를 새로 만들어야 하나요, 기존 응답에 추가하나요?', r: ['api', 'rest', 'json'] },
+    { id: 'rest', t: 'REST API', en: 'Representational State Transfer',
+      d: 'URL로 대상을, HTTP 메서드로 행동을 표현하는 API 설계 방식. GET 조회, POST 생성, PUT·PATCH 수정, DELETE 삭제.',
+      s: '찜 해제는 DELETE로 처리되니까, 화면에서는 되돌리기 토스트만 띄우면 돼요.', r: ['api', 'endpoint'] },
+    { id: 'json', t: 'JSON', en: 'JavaScript Object Notation',
+      d: '{"name": "값"} 형태로 데이터를 주고받는 텍스트 형식. API 응답 대부분이 JSON이다.',
+      s: '응답 JSON에 배지 노출 여부(isNew) 필드를 하나 추가해 주세요.', r: ['api', 'schema'] },
+    { id: 'webhook', t: '웹훅', en: 'Webhook',
+      d: '어떤 일이 생겼을 때 상대 서버가 우리 서버로 먼저 알려 주는 방식. 우리가 계속 물어보는(폴링) 대신 통보를 받는다.',
+      s: '결제 완료 처리는 PG사 웹훅을 받은 뒤에 확정돼요. 그 사이 상태 화면이 필요합니다.', r: ['api', 'batch'] },
+    { id: 'sdk', t: 'SDK', en: 'Software Development Kit',
+      d: '외부 서비스를 쉽게 붙이도록 묶어 둔 개발 도구 모음. 소셜 로그인, 결제, 분석 도구 연동에 주로 쓴다.',
+      s: '분석 SDK 버전을 올려야 새 이벤트 속성을 받을 수 있대요.', r: ['api', 'event-log'] },
+    { id: 'database', t: '데이터베이스 / SQL', en: 'Database / Structured Query Language',
+      d: '데이터를 표 형태로 정리해 저장하는 시스템과, 그 데이터를 조회·수정하는 언어. 기획자도 SELECT 문 정도는 읽고 쓸 수 있으면 지표를 직접 확인할 수 있다.',
+      s: '지난주 신규 가입자 수는 제가 SQL로 직접 뽑아 볼게요.', r: ['schema', 'backend'] },
+    { id: 'schema', t: '스키마 / ERD', en: 'Schema / Entity Relationship Diagram',
+      d: '데이터 구조의 설계도. 어떤 표(테이블)에 어떤 항목(컬럼)이 있고 표끼리 어떻게 연결되는지를 정의한다.',
+      s: '회원 한 명이 배송지를 여러 개 가질 수 있으면 ERD부터 바뀌어요. 정책을 먼저 정해 주세요.', r: ['database', 'migration'] },
+    { id: 'event-log', t: '로그 / 이벤트 트래킹', en: 'Log / Event Tracking',
+      d: '시스템 동작 기록이 로그, 사용자의 클릭·조회 같은 행동 기록이 이벤트다. 기획자는 어떤 행동을 어떤 이름으로 남길지 이벤트 정의서를 쓴다.',
+      s: '구매 버튼 클릭은 click_purchase, 속성으로 product_id와 위치값을 남겨 주세요.', r: ['sdk', 'url'] },
+    { id: 'batch', t: '배치', en: 'Batch',
+      d: '정해진 시간에 데이터를 모아 한꺼번에 처리하는 작업. 바로 처리하는 실시간 방식과 대비된다.',
+      s: '포인트 적립은 새벽 배치라 다음 날 반영됩니다. 화면에 "적립 예정"으로 보여 줘야 해요.', r: ['webhook', 'database'] },
+    { id: 'migration', t: '마이그레이션', en: 'Migration',
+      d: '데이터나 시스템을 새 구조·새 환경으로 옮기는 작업. 옮기는 동안 서비스를 멈추거나 데이터를 변환해야 할 수 있다.',
+      s: '구 회원 데이터 마이그레이션 끝나기 전까지는 등급 화면을 열면 안 돼요.', r: ['schema', 'legacy'] },
+  ]},
+
+  { id: 'infra', title: '인프라·배포', terms: [
+    { id: 'cloud', t: '클라우드', en: 'Cloud · AWS · GCP · Azure',
+      d: '서버를 직접 사지 않고 필요한 만큼 빌려 쓰는 방식. 쓴 만큼 비용을 내고, 트래픽에 맞춰 규모를 늘리거나 줄일 수 있다.',
+      s: '이벤트 기간에만 서버를 늘렸다가 끝나면 줄이면 돼요. 비용은 그 기간만큼.', r: ['serverless', 'traffic'] },
+    { id: 'serverless', t: '서버리스', en: 'Serverless',
+      d: '서버 관리를 클라우드에 맡기고 기능(함수) 단위로 실행하는 방식. 실행될 때만 비용이 나간다.',
+      s: '이미지 리사이즈 같은 단발성 작업은 서버리스 함수로 빼는 게 싸요.', r: ['cloud'] },
+    { id: 'env', t: '개발 / 스테이징 / 운영', en: 'Dev / Staging / Production',
+      d: '개발자가 작업하는 개발 환경, 운영과 같은 조건에서 검수하는 스테이징, 실제 사용자가 쓰는 운영(프로덕션) 환경.',
+      s: '스테이징에서 QA 통과하면 목요일에 운영 배포합니다.', r: ['deploy', 'qa'] },
+    { id: 'deploy', t: '배포 / 릴리즈', en: 'Deploy / Release',
+      d: '완성한 코드를 서버나 앱스토어에 올려 사용자에게 반영하는 일. 앱은 스토어 심사 시간이 추가로 든다.',
+      s: '이번 릴리즈 범위에서 쿠폰 기능은 빼고 다음 배포로 넘기죠.', r: ['env', 'cicd', 'rollback', 'version'] },
+    { id: 'cicd', t: 'CI / CD', en: 'Continuous Integration / Delivery',
+      d: '코드를 합치고(통합), 자동으로 테스트하고, 배포까지 이어지는 과정을 자동화한 파이프라인.',
+      s: 'CI가 깨져서 배포가 막혀 있어요. 테스트 고치는 대로 나갑니다.', r: ['deploy', 'git'] },
+    { id: 'rollback', t: '롤백', en: 'Rollback',
+      d: '배포 후 문제가 생겼을 때 이전 버전으로 되돌리는 일. 데이터 구조가 바뀐 배포는 롤백이 어렵다.',
+      s: '결제 오류가 늘어서 일단 롤백하고 원인부터 보겠습니다.', r: ['deploy', 'hotfix', 'incident'] },
+    { id: 'hotfix', t: '핫픽스', en: 'Hotfix',
+      d: '운영 중 발견된 긴급한 버그를 정기 배포 일정과 별도로 바로 고쳐 내보내는 것.',
+      s: '가격 표시 오류는 핫픽스로 오늘 안에 나가야 해요.', r: ['rollback', 'bug-issue'] },
+    { id: 'container', t: '컨테이너 / 도커', en: 'Container / Docker',
+      d: '프로그램과 실행에 필요한 환경을 한 상자에 담아 어디서든 똑같이 돌아가게 하는 기술. 도커가 대표적인 도구다.',
+      s: '로컬에서는 되는데 서버에서 안 되는 문제는 컨테이너로 환경을 맞추면 줄어요.', r: ['cloud', 'env'] },
+    { id: 'cdn', t: 'CDN', en: 'Content Delivery Network',
+      d: '이미지·영상 같은 파일을 사용자와 가까운 곳의 서버에서 대신 내려 주는 네트워크. 로딩이 빨라지고 원 서버 부담이 준다.',
+      s: '배너 이미지는 CDN 캐시라 교체 후 반영까지 몇 분 걸릴 수 있어요.', r: ['cache', 'traffic'] },
+    { id: 'traffic', t: '트래픽 / 부하', en: 'Traffic / Load',
+      d: '서비스로 들어오는 요청의 양과, 그 때문에 서버가 받는 부담. 이벤트 오픈 전에는 부하 테스트로 버틸 수 있는지 확인한다.',
+      s: '선착순 쿠폰은 오픈 순간 트래픽이 몰리니까 대기열 화면을 같이 기획해 주세요.', r: ['cloud', 'incident'] },
+    { id: 'incident', t: '장애 / SLA', en: 'Incident / Service Level Agreement',
+      d: '서비스가 정상 동작하지 않는 상태가 장애. SLA는 "월 가용성 99.9%"처럼 서비스 수준을 약속한 것으로, 99.9%면 한 달에 약 43분까지 멈춤을 허용한다.',
+      s: '장애 공지 문구랑 점검 페이지는 미리 템플릿으로 만들어 두죠.', r: ['rollback', 'traffic', 'status-code'] },
+  ]},
+
+  { id: 'collab', title: '개발 협업', terms: [
+    { id: 'git', t: 'Git / GitHub', en: 'Git · GitHub · GitLab',
+      d: '코드가 언제 누구에 의해 어떻게 바뀌었는지 기록하는 도구가 Git, 그 기록을 온라인에서 함께 관리하는 서비스가 GitHub다.',
+      s: '이 기능이 언제 바뀌었는지는 Git 기록 보면 바로 나와요.', r: ['commit-push', 'branch', 'pr'] },
+    { id: 'branch', t: '브랜치 / 머지', en: 'Branch / Merge',
+      d: '원본 코드에서 갈라져 나와 따로 작업하는 가지가 브랜치, 작업을 마친 가지를 원본에 합치는 것이 머지다.',
+      s: '리뉴얼은 별도 브랜치에서 작업하고, 오픈 날 머지합니다.', r: ['git', 'pr'] },
+    { id: 'commit-push', t: '커밋 / 푸시', en: 'Commit / Push',
+      d: '변경한 내용을 설명과 함께 내 컴퓨터의 기록에 저장하는 것이 커밋, 그 기록을 GitHub 같은 공용 저장소에 올리는 것이 푸시다. 커밋만 하면 나만 볼 수 있고, 푸시해야 동료가 받을 수 있다. 앱 알림의 "푸시"와는 다른 말이다.',
+      s: '수정은 커밋해 두었는데 아직 푸시 전이라 동료 화면에는 안 보일 거예요.', r: ['git', 'pull', 'branch'] },
+    { id: 'pull', t: '풀', en: 'Pull',
+      d: '공용 저장소에 올라온 동료의 변경 내용을 내 컴퓨터로 받아 와 합치는 것. 작업을 시작하기 전에 풀을 하지 않으면 오래된 코드 위에서 작업하게 되고, 나중에 합칠 때 충돌이 생기기 쉽다.',
+      s: '작업 시작 전에 꼭 풀부터 받으세요. 어제 디자인 수정이 올라갔어요.', r: ['commit-push', 'conflict'] },
+    { id: 'conflict', t: '충돌', en: 'Merge Conflict',
+      d: '두 사람이 같은 파일의 같은 부분을 서로 다르게 고친 뒤 합치려 할 때 Git이 어느 쪽을 남길지 정하지 못하는 상태. 사람이 두 내용을 보고 직접 골라야 한다. 작업 전에 풀하고, 같은 파일을 동시에 고치지 않도록 나누면 크게 줄어든다.',
+      s: '메인 화면 문구를 둘이 동시에 고쳐서 충돌 났어요. 어느 쪽 문구로 갈지 정해 주세요.', r: ['branch', 'pull'] },
+    { id: 'pr', t: 'PR / 코드 리뷰', en: 'Pull Request / Code Review',
+      d: '내 작업을 원본에 합쳐 달라는 요청이 PR. 합치기 전에 동료가 코드를 검토하는 과정이 코드 리뷰다.',
+      s: 'PR 리뷰 끝나면 스테이징에 올려 드릴게요. 화면 확인 부탁드려요.', r: ['branch', 'qa'] },
+    { id: 'qa', t: 'QA / 테스트 케이스', en: 'Quality Assurance / Test Case',
+      d: '기능이 기획대로 동작하는지 검증하는 일. 확인할 상황과 기대 결과를 미리 적어 둔 목록이 테스트 케이스(TC)다.',
+      s: '비로그인, 쿠폰 만료, 재고 0 케이스를 TC에 꼭 넣어 주세요.', r: ['bug-issue', 'env'] },
+    { id: 'bug-issue', t: '버그 / 이슈 / 티켓', en: 'Bug / Issue / Ticket',
+      d: '버그는 의도와 다르게 동작하는 결함. 이슈·티켓은 버그와 할 일을 하나씩 기록해 담당자와 상태를 관리하는 단위로, Jira 같은 도구에서 다룬다.',
+      s: '재현 경로랑 기기 정보 같이 적어서 티켓으로 올려 주세요.', r: ['qa', 'hotfix'] },
+    { id: 'hardcoding', t: '하드코딩', en: 'Hardcoding',
+      d: '바뀔 수 있는 값을 코드 안에 직접 적어 넣는 것. 값을 바꾸려면 개발자가 코드를 고쳐 다시 배포해야 한다.',
+      s: '배너 문구가 하드코딩이라 바꾸려면 배포가 필요해요. 어드민에서 바꿀 수 있게 하죠.', r: ['admin', 'deploy'] },
+    { id: 'admin', t: '어드민 / 백오피스', en: 'Admin / Back Office',
+      d: '운영자가 회원·주문·콘텐츠를 관리하는 내부용 화면. 사용자 화면만큼 기획이 필요하지만 자주 뒤로 밀린다.',
+      s: '이벤트 노출 기간은 어드민에서 운영팀이 직접 설정하게 해 주세요.', r: ['hardcoding', 'authn-authz'] },
+    { id: 'tech-debt', t: '기술 부채', en: 'Technical Debt',
+      d: '빨리 내보내려고 택한 임시방편이 쌓여, 나중에 고치는 비용이 커지는 상태. 갚지 않으면 새 기능 개발 속도가 점점 느려진다.',
+      s: '이번 분기엔 기술 부채 정리에 스프린트 하나를 쓰겠습니다.', r: ['legacy', 'refactoring'] },
+    { id: 'legacy', t: '레거시', en: 'Legacy',
+      d: '오래전에 만들어져 지금도 돌아가지만, 구조가 낡아 고치기 어려운 시스템이나 코드.',
+      s: '주문 쪽은 레거시라 필드 하나 추가하는 데도 일주일 걸려요.', r: ['tech-debt', 'migration'] },
+    { id: 'refactoring', t: '리팩토링', en: 'Refactoring',
+      d: '겉으로 보이는 기능은 그대로 두고 코드 내부 구조를 정리하는 일. 사용자 화면에는 변화가 없다.',
+      s: '이번 배포는 리팩토링이라 화면 변화는 없지만, 회귀 테스트는 전체로 해야 해요.', r: ['tech-debt', 'qa'] },
+    { id: 'version', t: '버전 번호', en: 'Semantic Versioning · 2.4.1',
+      d: '주.부.수(메이저.마이너.패치) 형식. 큰 변화나 호환이 깨지면 앞자리, 기능 추가는 가운데, 버그 수정은 끝자리를 올린다.',
+      s: '이건 버그 수정이니까 2.4.1로 나가고, 신규 기능은 2.5.0에 묶죠.', r: ['deploy'] },
+    { id: 'man-month', t: '공수 / MM', en: 'Man-Month',
+      d: '일의 양을 사람 수 × 기간으로 나타낸 단위. 1MM은 한 사람이 한 달 동안 하는 양이다. 사람을 늘린다고 기간이 그만큼 줄지는 않는다.',
+      s: '이 기능은 프론트 0.5MM, 백엔드 1MM 정도로 보고 있어요.', r: ['tech-debt'] },
+  ]},
+
+  { id: 'ui', title: '화면 요소', terms: [
+    { id: 'gnb', t: 'GNB / LNB / SNB', en: 'Global / Local / Side Navigation Bar',
+      d: '모든 페이지에 공통으로 붙는 최상단 메뉴가 GNB, 특정 영역 안에서만 쓰는 하위 메뉴가 LNB, 측면에 붙는 보조 메뉴가 SNB다.',
+      s: 'GNB에서 "이벤트"를 빼고 마이페이지 LNB로 옮기겠습니다.', r: ['design-system'] },
+    { id: 'modal', t: '모달 / 팝업 / 바텀시트', en: 'Modal / Pop-up / Bottom Sheet',
+      d: '모달은 현재 화면 위에 떠서 닫기 전까지 뒤를 막는 창, 팝업은 새 창이나 레이어 전반, 바텀시트는 화면 아래에서 올라오는 패널이다.',
+      s: '옵션 선택은 모달 말고 바텀시트로 해야 엄지로 누르기 편해요.', r: ['toast', 'cta'] },
+    { id: 'toast', t: '토스트 / 스낵바', en: 'Toast / Snackbar',
+      d: '잠깐 떴다가 저절로 사라지는 짧은 알림. 스낵바는 "되돌리기" 같은 버튼을 하나 품을 수 있다.',
+      s: '장바구니 담기는 페이지 이동 없이 토스트만 띄워 주세요.', r: ['modal'] },
+    { id: 'skeleton', t: '스켈레톤 UI', en: 'Skeleton UI',
+      d: '데이터를 불러오는 동안 실제 콘텐츠 자리에 회색 윤곽을 먼저 보여 주는 방식. 빙글빙글 도는 로딩보다 덜 기다리는 느낌을 준다.',
+      s: '목록 첫 진입은 스피너 대신 스켈레톤으로 가죠.', r: ['empty-state'] },
+    { id: 'empty-state', t: '빈 화면 / 엠티 스테이트', en: 'Empty State',
+      d: '보여 줄 데이터가 없을 때의 화면. 검색 결과 없음, 첫 사용, 오류 상황 각각 다르게 설계해야 한다.',
+      s: '찜이 0개일 때 빈 화면에 추천 상품을 깔면 이탈이 줄 거예요.', r: ['skeleton', 'cta'] },
+    { id: 'pagination', t: '페이지네이션 / 무한 스크롤', en: 'Pagination / Infinite Scroll',
+      d: '목록을 번호 페이지로 나눠 보여 주는 방식과, 끝에 닿으면 다음 목록을 이어 붙이는 방식. 찾기가 목적이면 전자, 둘러보기가 목적이면 후자가 맞다.',
+      s: '피드는 무한 스크롤, 주문 내역은 페이지네이션으로 가겠습니다.', r: ['skeleton'] },
+    { id: 'deeplink', t: '딥링크', en: 'Deep Link',
+      d: '앱의 첫 화면이 아니라 특정 화면으로 바로 열리게 하는 링크. 앱이 설치돼 있지 않으면 스토어로 보낸 뒤 해당 화면으로 연결하는 방식도 있다.',
+      s: '푸시 누르면 홈 말고 해당 상품 상세로 딥링크 걸어 주세요.', r: ['push', 'url', 'webview'] },
+    { id: 'push', t: '푸시 / 인앱 메시지', en: 'Push Notification / In-App Message',
+      d: '앱을 안 쓰고 있을 때도 기기 알림으로 보내는 것이 푸시, 앱을 쓰는 중에 화면 안에서 띄우는 것이 인앱 메시지다. 광고성 푸시는 수신 동의가 필요하다.',
+      s: '광고성 푸시는 야간(21시~8시) 발송 제한이 있으니 예약 시간 확인해 주세요.', r: ['deeplink'] },
+    { id: 'design-system', t: '디자인 시스템 / 컴포넌트', en: 'Design System / Component',
+      d: '버튼·입력창 같은 화면 부품(컴포넌트)과 색·간격·글꼴 규칙을 모아 둔 공통 기준. 같은 부품을 재사용해 일관성과 개발 속도를 높인다.',
+      s: '이 버튼은 디자인 시스템에 있는 컴포넌트라 새로 만들 필요 없어요.', r: ['responsive', 'gnb'] },
+    { id: 'cta', t: 'CTA', en: 'Call To Action',
+      d: '사용자가 해 주기를 바라는 행동으로 이끄는 버튼이나 문구. "구매하기", "무료로 시작하기" 등.',
+      s: '상세 페이지 CTA는 하단 고정으로 바꾸고, 문구 A/B 테스트 해 보죠.', r: ['modal', 'event-log'] },
+  ]},
+
+  { id: 'sec', title: '보안·인증', terms: [
+    { id: 'authn-authz', t: '인증 / 인가', en: 'Authentication / Authorization',
+      d: '인증은 "누구인지" 확인하는 것(로그인), 인가는 "무엇을 할 수 있는지" 권한을 확인하는 것이다.',
+      s: '로그인은 됐는데 관리자 메뉴가 안 보이면 인가 문제예요. 권한 등급 정의부터 보죠.', r: ['oauth', 'token', 'status-code'] },
+    { id: 'oauth', t: 'OAuth / 소셜 로그인', en: 'Open Authorization',
+      d: '비밀번호를 넘기지 않고 다른 서비스(구글·카카오 등)의 계정으로 로그인하거나 권한을 위임받는 표준 방식.',
+      s: '카카오 로그인으로 받을 수 있는 정보 범위(이메일, 생년월일)를 먼저 정해야 해요.', r: ['authn-authz', 'sso'] },
+    { id: 'sso', t: 'SSO', en: 'Single Sign-On',
+      d: '한 번 로그인으로 여러 서비스를 함께 쓰는 방식. 회사 계정 하나로 메일·메신저·사내 도구에 들어가는 것.',
+      s: '사내 어드민은 SSO 붙여서 퇴사자 계정이 자동으로 막히게 하죠.', r: ['oauth', 'admin'] },
+    { id: 'token', t: '토큰 / JWT', en: 'Token / JSON Web Token',
+      d: '로그인에 성공하면 받는 출입증 같은 문자열. 요청마다 이걸 함께 보내 신원을 증명하고, 만료되면 다시 받아야 한다.',
+      s: '토큰 만료가 1시간이라, 글 쓰다가 로그아웃되는 문제가 생겨요. 자동 연장이 필요합니다.', r: ['cookie-session', 'authn-authz'] },
+    { id: 'mfa', t: '2단계 인증', en: '2FA / MFA · Multi-Factor Authentication',
+      d: '비밀번호에 더해 문자 인증번호, 인증 앱 같은 두 번째 수단으로 한 번 더 확인하는 방식.',
+      s: '결제 수단 변경할 때만 2단계 인증을 요구하면 불편도 줄이고 안전해요.', r: ['authn-authz'] },
+    { id: 'encryption', t: '암호화 / 해시', en: 'Encryption / Hash',
+      d: '암호화는 열쇠가 있으면 원래대로 되돌릴 수 있게 감추는 것, 해시는 되돌릴 수 없게 바꾸는 것이다. 비밀번호는 해시로 저장하므로 운영자도 원래 값을 알 수 없다.',
+      s: '비밀번호 찾기에서 기존 비밀번호를 보여 줄 수는 없어요. 재설정만 가능합니다.', r: ['https', 'masking'] },
+    { id: 'masking', t: '마스킹 / 비식별화', en: 'Masking / De-identification',
+      d: '개인정보 일부를 가려(홍*동, 010-****-1234) 보여 주는 것이 마스킹, 누구인지 알아볼 수 없게 데이터를 가공하는 것이 비식별화다.',
+      s: '어드민 회원 목록도 연락처는 마스킹하고, 열람 권한자만 풀어서 보게 해 주세요.', r: ['encryption', 'admin'] },
+  ]},
+
+  { id: 'ai', title: 'AI', terms: [
+    { id: 'llm', t: 'LLM', en: 'Large Language Model · 대규모 언어 모델',
+      d: '방대한 글을 학습해 다음에 올 단어를 예측하는 방식으로 문장을 만들어 내는 AI 모델. ChatGPT(OpenAI), Claude(Anthropic), Gemini(Google)가 대표적이다. 질문 답변, 요약, 번역, 코드 작성까지 글로 된 일을 폭넓게 처리한다.',
+      s: '이 기능은 규칙으로 짜기 어려우니 LLM으로 분류하고, 애매한 건 사람이 보게 하죠.', r: ['ai-token', 'hallucination', 'private-llm'] },
+    { id: 'prompt', t: '프롬프트', en: 'Prompt · Prompt Engineering',
+      d: 'AI에게 주는 지시문. 역할, 목적, 참고 자료, 원하는 형식, 하지 말아야 할 것을 구체적으로 적을수록 결과가 안정적이다. 이 지시문을 설계하고 다듬는 일을 프롬프트 엔지니어링이라고 한다.',
+      s: '답변 형식이 매번 달라서, 프롬프트에 출력 예시를 하나 넣어 고정했어요.', r: ['system-prompt', 'context-window'] },
+    { id: 'system-prompt', t: '시스템 프롬프트', en: 'System Prompt',
+      d: '사용자 질문과 별도로, 서비스가 AI에게 미리 깔아 두는 기본 지시. 말투, 역할, 답하면 안 되는 주제, 참고할 정책 같은 것을 정한다. AI 기능을 기획할 때 기획자가 직접 쓰거나 검토하는 경우가 많다.',
+      s: '시스템 프롬프트에 "환불 금액은 확답하지 말고 상담원 연결을 안내"를 넣어 주세요.', r: ['prompt', 'guardrail'] },
+    { id: 'ai-token', t: '토큰 (AI)', en: 'Token',
+      d: 'AI가 글을 처리하는 단위. 대략 단어나 글자 조각 하나 정도로, 한국어는 영어보다 같은 내용에 토큰이 더 많이 드는 편이다. AI API 요금과 한 번에 넣을 수 있는 글의 양이 모두 토큰 수로 정해진다. 로그인 토큰과는 다른 말이다.',
+      s: '상담 내역 전체를 매번 넣으면 토큰 비용이 커지니, 최근 대화만 요약해서 넣죠.', r: ['context-window', 'api', 'token'] },
+    { id: 'ai-pricing', t: 'AI 요금 (토큰 과금)', en: 'Token-based Pricing',
+      d: 'AI API는 보통 넣은 글(입력 토큰)과 받은 글(출력 토큰)의 양에 따라 요금을 매기고, 출력이 입력보다 비싸다. 성능이 좋은 모델일수록 단가가 높다. 같은 내용을 반복해 넣을 때는 캐싱으로 할인받을 수 있다. 서비스 기획 때는 사용자 1명이 하루에 몇 번 호출하는지로 월 비용을 미리 계산해 본다.',
+      s: '요약은 작은 모델로, 최종 답변만 큰 모델로 돌리면 월 AI 비용을 절반 이하로 줄일 수 있어요.', r: ['ai-token', 'api', 'context-window'] },
+    { id: 'temperature', t: '온도 (Temperature)', en: 'Temperature',
+      d: 'AI 답변이 얼마나 무작위로 달라질지 정하는 설정값. 낮으면 매번 비슷하고 안정적인 답을, 높으면 다양하고 창의적인 답을 낸다. 분류나 정보 추출처럼 정답이 있는 작업은 낮게, 카피나 아이디어 발상은 높게 둔다.',
+      s: '상품 분류는 매번 같은 결과가 나와야 하니 온도를 0으로 고정해 주세요.', r: ['llm', 'hallucination'] },
+    { id: 'streaming', t: '스트리밍 응답', en: 'Streaming',
+      d: 'AI가 답변을 다 만든 뒤 한 번에 보여 주지 않고, 만들어지는 대로 글자를 조금씩 흘려보내는 방식. 전체 시간은 같아도 첫 글자가 바로 보여서 사용자가 덜 기다린다고 느낀다. 대신 중간에 오류가 나거나 답이 잘리는 경우의 화면 처리를 기획해야 한다.',
+      s: '챗봇 답변은 스트리밍으로 보여 주고, 생성 중에는 중단 버튼을 노출할게요.', r: ['llm', 'api'] },
+    { id: 'eval', t: '평가 (Eval)', en: 'Evaluation',
+      d: 'AI 기능이 기대한 대로 답하는지 미리 정한 질문 세트로 점수를 매겨 확인하는 일. 질문과 모범 답안, 채점 기준을 두고 모델이나 프롬프트를 바꿀 때마다 다시 돌려 품질이 떨어지지 않았는지 본다. AI 기능의 테스트 케이스에 해당한다.',
+      s: '프롬프트 바꾸기 전에 자주 묻는 질문 50개로 평가 세트부터 만들어 두죠.', r: ['qa', 'hallucination', 'prompt'] },
+    { id: 'context-window', t: '컨텍스트 윈도우', en: 'Context Window',
+      d: 'AI가 한 번에 읽고 기억할 수 있는 글의 최대 분량(토큰 수). 대화가 길어지거나 긴 문서를 넣으면 이 한도를 넘어 앞부분을 잊거나 잘라내야 한다.',
+      s: '200쪽짜리 매뉴얼은 컨텍스트 윈도우를 넘으니, 통째로 넣지 말고 RAG로 필요한 부분만 찾아 넣어야 해요.', r: ['ai-token', 'rag'] },
+    { id: 'hallucination', t: '할루시네이션', en: 'Hallucination',
+      d: 'AI가 사실이 아닌 내용을 그럴듯하게 지어내는 현상. 없는 출처, 틀린 숫자, 존재하지 않는 기능을 자신 있게 말한다. 근거 문서를 함께 주거나(RAG), 출처를 표시하게 하거나, 사람이 검수하는 단계를 두어 줄인다.',
+      s: '요금 안내처럼 틀리면 안 되는 답변은 할루시네이션 방지를 위해 공식 문서에 있는 내용만 답하게 제한하죠.', r: ['rag', 'guardrail', 'llm'] },
+    { id: 'rag', t: 'RAG', en: 'Retrieval-Augmented Generation · 검색 증강 생성',
+      d: '질문이 들어오면 먼저 관련 문서를 검색해 찾고, 그 내용을 AI에게 함께 넘겨 답하게 하는 방식. 모델을 다시 학습시키지 않고도 사내 문서나 최신 정보로 답하게 할 수 있어 기업용 챗봇에서 가장 많이 쓴다.',
+      s: 'FAQ 챗봇은 파인튜닝 말고 RAG로 가요. 문서만 바꾸면 답이 바로 갱신되니까요.', r: ['embedding', 'private-llm', 'fine-tuning'] },
+    { id: 'embedding', t: '임베딩 / 벡터 DB', en: 'Embedding / Vector Database',
+      d: '글의 의미를 숫자 목록(벡터)으로 바꾼 것이 임베딩이고, 이를 저장해 두고 의미가 비슷한 것끼리 빠르게 찾아 주는 저장소가 벡터 DB다. 단어가 달라도 뜻이 비슷하면 찾아낼 수 있어 RAG의 검색 단계에 쓴다.',
+      s: '"연차"로 검색해도 "휴가 규정" 문서가 나오는 건 임베딩 검색이라서 그래요.', r: ['rag', 'database', 'semantic-search'] },
+    { id: 'morpheme', t: '형태소 분석', en: 'Morphological Analysis',
+      d: '문장을 뜻을 가진 가장 작은 단위(형태소)로 나누고 품사를 붙이는 일. 한국어는 "환불했는데요"처럼 단어 뒤에 조사와 어미가 붙기 때문에, "환불"을 떼어 내야 검색과 분류가 제대로 된다. 영어보다 이 단계가 중요하고 어렵다.',
+      s: '"환불은", "환불했어요"가 검색에 안 걸리는 건 형태소 분석 없이 글자 그대로 찾아서 그래요.', r: ['ai-token', 'semantic-search'] },
+    { id: 'semantic-search', t: '시맨틱 검색', en: 'Semantic Search',
+      d: '글자가 일치하는지가 아니라 뜻이 비슷한지로 찾는 검색. 질문과 문서를 임베딩으로 바꿔 가까운 것을 찾는다. 표현이 달라도 찾지만, 상품 코드나 고유명사처럼 정확히 일치해야 하는 검색은 키워드 검색이 낫다. 실무에서는 둘을 섞어 쓰는 경우가 많다.',
+      s: '모델명 검색은 키워드로, "가벼운 노트북 추천" 같은 문장 검색은 시맨틱으로 처리하죠.', r: ['embedding', 'rag', 'morpheme'] },
+    { id: 'ner', t: '개체명 인식', en: 'Named Entity Recognition (NER)',
+      d: '문장에서 사람 이름, 회사, 장소, 날짜, 금액, 주소 같은 정해진 종류의 정보를 찾아 표시하는 일. 상담 내용에서 주문번호를 뽑거나, 개인정보를 찾아 가리는 데 쓴다.',
+      s: '문의 글에서 주문번호랑 연락처를 개체명 인식으로 뽑아서 상담 화면에 바로 띄워 주세요.', r: ['masking', 'llm'] },
+    { id: 'sentiment', t: '감성 분석', en: 'Sentiment Analysis',
+      d: '글에 담긴 태도가 긍정인지 부정인지, 또는 화남·불안 같은 감정이 무엇인지 판별하는 일. 리뷰와 고객 문의(VOC)를 대량으로 분류하거나, 불만이 큰 문의를 먼저 처리하는 데 쓴다. "좋기도 하네요^^"처럼 반어나 비꼼은 자주 틀린다.',
+      s: '부정 감성이 강한 문의는 대기열 맨 앞으로 올리고 담당자에게 알림을 보내죠.', r: ['precision-recall', 'llm'] },
+    { id: 'precision-recall', t: '정밀도 / 재현율', en: 'Precision / Recall',
+      d: 'AI가 "맞다"고 고른 것 중 실제로 맞은 비율이 정밀도, 실제로 맞는 것 중 AI가 찾아낸 비율이 재현율이다. 정밀도가 낮으면 잘못 잡고, 재현율이 낮으면 놓친다. 둘은 보통 한쪽을 올리면 다른 쪽이 내려가서, 어느 실수를 더 피할지 정하는 것이 기획 결정이다.',
+      s: '스팸 필터는 정상 메일을 막으면 더 치명적이니, 재현율보다 정밀도를 우선해 주세요.', r: ['eval', 'qa'] },
+    { id: 'fine-tuning', t: '파인튜닝', en: 'Fine-tuning',
+      d: '이미 만들어진 AI 모델에 특정 분야의 예시 데이터를 추가로 학습시켜 말투나 작업 방식을 맞추는 것. 데이터 준비와 비용이 들고 내용을 바꾸려면 다시 학습해야 해서, 지식을 넣는 목적이라면 보통 RAG를 먼저 검토한다.',
+      s: '상담 말투를 브랜드 톤에 맞추는 건 파인튜닝, 최신 요금표를 반영하는 건 RAG가 맞아요.', r: ['rag', 'llm'] },
+    { id: 'ai-agent', t: 'AI 에이전트', en: 'AI Agent',
+      d: '질문에 답만 하는 것을 넘어, 목표를 받으면 스스로 단계를 나누고 검색, 파일 수정, 외부 서비스 호출 같은 도구를 써 가며 일을 끝까지 처리하는 AI. Claude Code, Codex, Manus 같은 서비스가 여기에 해당한다.',
+      s: '예약 변경은 AI 에이전트가 조회부터 변경까지 처리하되, 결제가 걸리면 사용자 확인을 한 번 받게 하죠.', r: ['mcp', 'guardrail'] },
+    { id: 'mcp', t: 'MCP', en: 'Model Context Protocol',
+      d: 'AI가 외부 도구와 데이터(구글 드라이브, 슬랙, 사내 DB 등)에 연결하는 방법을 정한 공개 표준. Anthropic이 공개했고 여러 AI 서비스가 지원한다. 도구마다 따로 연동을 만들지 않아도 되어 "AI용 USB 포트"에 비유된다.',
+      s: '우리 서비스도 MCP 서버를 열어 두면 사용자가 쓰는 AI에서 바로 주문 내역을 조회할 수 있어요.', r: ['ai-agent', 'api'] },
+    { id: 'multimodal', t: '멀티모달', en: 'Multimodal',
+      d: '글뿐 아니라 이미지, 음성, 영상, 파일처럼 여러 형태의 입력을 함께 이해하거나 만들어 내는 AI. 화면 캡처를 올려 질문하거나, 사진을 보고 설명을 쓰게 하는 기능이 해당한다.',
+      s: '고객이 오류 화면을 캡처해서 올리면 멀티모달 모델이 어떤 오류인지 먼저 분류하게 하죠.', r: ['llm'] },
+    { id: 'guardrail', t: '가드레일', en: 'Guardrail',
+      d: 'AI가 위험하거나 엉뚱한 답을 내지 않도록 입력과 출력에 거는 안전장치. 금지 주제 차단, 개인정보 가리기, 답변 범위 제한, 일정 확신도 이하일 때 사람에게 넘기기 같은 규칙을 둔다.',
+      s: '주민번호가 입력되면 가드레일에서 마스킹하고 AI에는 넘기지 않게 해 주세요.', r: ['system-prompt', 'hallucination', 'masking'] },
+    { id: 'vibe-coding', t: '바이브 코딩', en: 'Vibe Coding',
+      d: '코드를 직접 짜는 대신 원하는 것을 말로 설명하고 AI가 만든 결과를 보며 고쳐 나가는 개발 방식. 기획자도 프로토타입을 빠르게 만들 수 있지만, 보안·성능·유지보수는 개발자 검토가 필요하다.',
+      s: '이번 기획안은 화면설계서 대신 바이브 코딩으로 만든 프로토타입 링크로 공유할게요.', r: ['ai-agent', 'prompt'] },
+    { id: 'private-llm', t: '사내 LLM', en: 'Private / Enterprise LLM',
+      d: '회사 안에서만 쓰도록 구축한 대규모 언어 모델(ChatGPT 같은 AI) 환경. 기밀이 외부로 새지 않도록 자체 서버에 오픈소스 모델을 올리거나, 입력 데이터가 학습에 쓰이지 않는 기업용 클라우드 계약으로 쓴다. 사내 문서를 찾아 답하게 하려면 RAG(검색 증강 생성)를 함께 붙인다.',
+      s: '사내 LLM에 인사 규정 문서를 연결해서, 휴가 정책 문의는 챗봇이 먼저 답하게 하죠.', r: ['llm', 'rag', 'cloud', 'masking'] },
+    { id: 'harness', t: '하네스', en: 'Harness',
+      d: 'AI 모델을 감싸서 실제로 일하게 만드는 바깥 장치 전체. 어떤 도구를 쓸 수 있는지, 무엇을 허락받아야 하는지, 실행 전후에 무엇을 검사하는지, 어떤 규칙과 기억을 먼저 읽는지를 정한다. 같은 모델이라도 하네스에 따라 안전성과 결과 품질이 크게 달라진다.',
+      s: '모델을 바꾸기 전에 하네스부터 보죠. 권한 규칙이랑 완료 체크가 없어서 생긴 문제예요.', r: ['ai-agent', 'guardrail', 'hook', 'permission-rule'] },
+    { id: 'hook', t: '훅', en: 'Hook',
+      d: '정해진 시점에 자동으로 실행되도록 걸어 두는 스크립트. AI 코딩 도구에서는 요청 제출 직후, 도구 실행 전후, 작업 종료 때 등에 걸어 위험한 명령을 막거나, 결과를 기록하거나, 완료 조건을 확인한다. AI가 잊어도 항상 실행된다는 점이 규칙 문서와 다르다.',
+      s: '배포 명령이 실행되기 전에 테스트 통과 여부를 확인하는 훅을 걸어 두세요.', r: ['harness', 'webhook', 'cicd'] },
+    { id: 'agent-skill', t: '스킬', en: 'Agent Skill',
+      d: 'AI 에이전트에게 특정 작업을 하는 방법을 묶어서 가르쳐 두는 꾸러미. 지침 문서와 필요한 스크립트, 예시를 한 폴더에 담아 두면, 에이전트가 관련 작업을 할 때 꺼내 쓴다. 매번 긴 프롬프트를 붙여 넣지 않아도 같은 품질로 반복할 수 있고, 남이 만든 스킬을 설치해 쓰기도 한다.',
+      s: '회의록 정리는 우리 팀 양식대로 스킬로 만들어 두면, 누가 시켜도 같은 형식으로 나와요.', r: ['harness', 'subagent', 'prompt'] },
+    { id: 'subagent', t: '서브에이전트', en: 'Subagent',
+      d: '주 AI 에이전트가 일부 작업을 떼어 맡기는 보조 에이전트. 검색, 검수, 리뷰처럼 역할을 나눠 각자 따로 작업하고 결과만 돌려준다. 주 에이전트의 대화가 길어지는 것을 막고 여러 일을 동시에 처리할 수 있다.',
+      s: '자료 조사는 서브에이전트 세 개에 나눠 맡기고, 메인은 요약만 받게 했어요.', r: ['ai-agent', 'context-window'] },
+    { id: 'permission-rule', t: '권한 규칙', en: 'Permission Rules',
+      d: 'AI 에이전트가 할 수 있는 행동을 허용, 확인 필요, 금지로 나눠 둔 설정. 파일 삭제, 강제 푸시, 결제, 메시지 발송처럼 되돌리기 어려운 행동은 사람의 확인을 받게 하고, 금지된 행동은 우회하지 않고 멈추게 한다.',
+      s: '고객에게 메일이 나가는 동작은 권한 규칙에서 확인 필요로 묶어 주세요.', r: ['harness', 'guardrail', 'authn-authz'] },
+    { id: 'multi-model-review', t: '교차 리뷰', en: 'Multi-model Review',
+      d: '한 AI가 만든 결과물을 다른 회사의 AI에게도 검토시키는 방식. 같은 모델은 자기 실수를 놓치기 쉬워서, 다른 모델의 지적을 받아 고친 다음 공개한다. 사이트나 문서처럼 결과물이 크고 공개되는 경우에 주로 쓴다. 같은 모델에 관점을 나눠 맡기는 방식도 있다. 한쪽은 전체 설계를, 다른 쪽은 실제 코드와 예외 상황을 보게 한 뒤 결과를 합친다.',
+      s: '랜딩 페이지는 다른 모델로 교차 리뷰 한 번 돌리고 나서 배포할게요.', r: ['hallucination', 'llm'] },
+    { id: 'computer-use', t: '컴퓨터 사용', en: 'Computer Use',
+      d: 'AI가 화면을 보고 마우스와 키보드를 직접 조작해 앱이나 웹사이트를 쓰는 기능. API가 없는 프로그램도 사람처럼 다룰 수 있지만 느리고 실수할 수 있어서, 결제나 발송 같은 동작은 사람이 확인하게 둔다.',
+      s: 'API가 없는 구형 관리자 페이지는 컴퓨터 사용 기능으로 입력을 자동화해 볼 수 있어요.', r: ['ai-agent', 'api', 'permission-rule'] },
+  ]},
+];
+
+/* 메뉴 트리 */
+const MENU = [
+  { id: 'it', title: 'IT 용어', current: true },
+  { id: 'dict', title: 'IT 기술 사전', href: 'IT 기술 사전.html' },
+  { id: 'job', title: '직무 용어', href: '직무 용어.html' },
+  { id: 'nlp', title: 'NLP 기초', href: 'NLP 기초.html' },
+  { id: 'ai', title: 'AI 팁', href: 'AI 팁.html' },
+  { id: 'ref', title: '참고 사이트', href: '레퍼런스.html' },
+  { id: 'api', title: '공개 API', href: '공개 API.html' },
+];
+
+/* ════════════════════════════════════════════ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const pad = n => String(n).padStart(2, '0');
+const mq = matchMedia('(max-width: 899px)');
+
+const byId = {};
+DATA.forEach(sec => sec.terms.forEach(t => { byId[t.id] = t; t.sec = sec.id; }));
+const total = Object.keys(byId).length;
+
+/* tree */
+function renderTree() {
+  const openNodes = store.get('pn.tree', ['it']);
+  $('#tree').innerHTML = MENU.map(m => {
+    const caret = '<svg class="caret" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>';
+    if (m.off) return `<div class="node off"><span class="node-h">${caret}${esc(m.title)}</span></div>`;
+    if (m.href) return `<div class="node link"><a class="node-h" href="${esc(m.href)}">${caret}${esc(m.title)}</a></div>`;
+    const kids = m.current ? DATA.map((s, i) =>
+      `<li><a class="leaf" href="#sec-${s.id}" data-sec="${s.id}"><span class="num">${pad(i + 1)}</span>${esc(s.title)}<span class="n">${s.terms.length}</span></a></li>`).join('') : '';
+    return `<div class="node${openNodes.includes(m.id) ? ' open' : ''}" data-node="${m.id}">
+      <button class="node-h" aria-expanded="${openNodes.includes(m.id)}">${caret}${esc(m.title)}<span class="n">${m.current ? total : ''}</span></button>
+      <div class="kids"><ul>${kids}</ul></div></div>`;
+  }).join('');
+}
+
+/* sections */
+const collapsed = new Set(store.get('pn.collapsed', []));
+function renderSections() {
+  $('#content').innerHTML = DATA.map((s, i) => `
+    <section class="sec win${collapsed.has(s.id) ? ' closed' : ''}" id="sec-${s.id}" data-sec="${s.id}">
+      <div class="bar" role="button" tabindex="0" aria-expanded="${!collapsed.has(s.id)}">
+        <span class="idx">${pad(i + 1)}</span><span class="ttl">${esc(s.title)}</span><span class="n" data-count>${s.terms.length}</span>
+        <span class="ctl" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M1 5h8"/><path class="v" d="M5 1v8"/></svg></span>
+      </div>
+      <div class="body"><div class="grid" data-grid></div></div>
+    </section>`).join('');
+}
+
+function hl(text, q) {
+  if (!q) return esc(text);
+  return String(text ?? '').split(new RegExp(`(${escRe(q)})`, 'gi')).map((s, i) => i % 2 ? `<mark>${esc(s)}</mark>` : esc(s)).join('');
+}
+function termHTML(t, q) {
+  const rel = (t.r || []).filter(id => byId[id]).map(id => `<a href="#t-${id}">${esc(byId[id].t)}</a>`).join('');
+  return `<article class="term" id="t-${t.id}">
+    <h3><a href="#t-${t.id}">${hl(t.t, q)}</a><span class="en">${hl(t.en, q)}</span></h3>
+    <p class="d">${hl(t.d, q)}</p>
+    ${t.s ? `<p class="say">${hl(t.s, q)}</p>` : ''}
+    ${rel ? `<div class="rel">${rel}</div>` : ''}
+  </article>`;
+}
+function renderTerms(q = '') {
+  const ql = q.trim().toLowerCase();
+  let shown = 0;
+  DATA.forEach(s => {
+    const list = ql ? s.terms.filter(t => [t.t, t.en, t.d, t.s].join(' ').toLowerCase().includes(ql)) : s.terms;
+    const el = $(`#sec-${s.id}`);
+    el.hidden = list.length === 0;
+    $('[data-grid]', el).innerHTML = list.map(t => termHTML(t, q.trim())).join('');
+    $('[data-count]', el).textContent = ql ? `${list.length}/${s.terms.length}` : s.terms.length;
+    shown += list.length;
+  });
+  document.body.classList.toggle('searching', !!ql);
+  $('#count').textContent = ql ? `${shown}/${total}` : total;
+  $('#none').classList.toggle('show', shown === 0);
+}
+
+/* sidebar open/close */
+function setNav(open) {
+  if (mq.matches) {
+    document.body.classList.toggle('nav-open', open);
+  } else {
+    document.body.classList.toggle('nav-closed', !open);
+    store.set('pn.navClosed', !open);
+  }
+}
+$('#navBtn').addEventListener('click', () => setNav(mq.matches ? !document.body.classList.contains('nav-open') : true));
+$('#navClose').addEventListener('click', () => setNav(false));
+$('#scrim').addEventListener('click', () => setNav(false));
+if (store.get('pn.navClosed', false)) document.body.classList.add('nav-closed');
+mq.addEventListener('change', () => document.body.classList.remove('nav-open'));
+
+/* tree toggle */
+$('#tree').addEventListener('click', e => {
+  const h = e.target.closest('.node:not(.off):not(.link) > .node-h');
+  if (h) {
+    const node = h.parentElement;
+    const open = node.classList.toggle('open');
+    h.setAttribute('aria-expanded', open);
+    store.set('pn.tree', $$('.node.open').map(n => n.dataset.node));
+    return;
+  }
+  const leaf = e.target.closest('.leaf');
+  if (leaf) {
+    e.preventDefault();
+    const sec = $(`#sec-${leaf.dataset.sec}`);
+    let wait = 0;
+    if (sec.classList.contains('closed')) { toggleSec(sec, true); wait = 280; }
+    setTimeout(() => sec.scrollIntoView({ block: 'start' }), wait);
+    history.replaceState(null, '', `#sec-${leaf.dataset.sec}`);
+    if (mq.matches) setNav(false);
+  }
+});
+
+/* section collapse */
+function toggleSec(sec, open) {
+  const isOpen = open ?? sec.classList.contains('closed');
+  sec.classList.toggle('closed', !isOpen);
+  $('.bar', sec).setAttribute('aria-expanded', isOpen);
+  isOpen ? collapsed.delete(sec.dataset.sec) : collapsed.add(sec.dataset.sec);
+  store.set('pn.collapsed', [...collapsed]);
+}
+$('#content').addEventListener('click', e => {
+  const bar = e.target.closest('.sec > .bar');
+  if (bar) { toggleSec(bar.parentElement); return; }
+  const a = e.target.closest('a[href^="#t-"]');
+  if (a) { e.preventDefault(); goTerm(a.getAttribute('href').slice(3)); }
+});
+$('#content').addEventListener('keydown', e => {
+  const bar = e.target.closest('.sec > .bar');
+  if (bar && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleSec(bar.parentElement); }
+});
+
+function goTerm(id, smooth = true) {
+  if (!byId[id]) return;
+  let el = $(`#t-${id}`);
+  if (!el) { q.value = ''; renderTerms(); el = $(`#t-${id}`); }
+  const sec = el.closest('.sec');
+  let wait = 0;
+  if (sec.classList.contains('closed') && !document.body.classList.contains('searching')) { toggleSec(sec, true); wait = 280; }
+  setTimeout(() => {
+    el.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }, wait);
+  history.replaceState(null, '', `#t-${id}`);
+}
+
+/* search */
+const q = $('#q');
+q.addEventListener('input', () => renderTerms(q.value));
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== q && !e.ctrlKey && !e.metaKey) { e.preventDefault(); q.focus(); }
+  if (e.key === 'Escape') {
+    if (document.activeElement === q && q.value) { q.value = ''; renderTerms(); }
+    else if (document.body.classList.contains('nav-open')) setNav(false);
+  }
+});
+
+/* theme */
+const dark = matchMedia('(prefers-color-scheme: dark)');
+function isDark() {
+  const t = document.documentElement.getAttribute('data-theme');
+  return t ? t === 'dark' : dark.matches;
+}
+function syncThemeIcon() { document.body.classList.toggle('is-dark', isDark()); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('pn.theme', next); } catch (e) {}
+  syncThemeIcon();
+});
+dark.addEventListener('change', syncThemeIcon);
+
+/* scrollspy */
+function spy() {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        $$('.leaf').forEach(l => l.classList.toggle('on', l.dataset.sec === en.target.dataset.sec));
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  $$('.sec').forEach(s => io.observe(s));
+}
+
+/* init */
+renderTree();
+renderSections();
+renderTerms();
+syncThemeIcon();
+spy();
+if (location.hash.startsWith('#t-')) requestAnimationFrame(() => goTerm(location.hash.slice(3), false));
+else if (location.hash.startsWith('#sec-')) { const s = $(location.hash); if (s) requestAnimationFrame(() => s.scrollIntoView()); }
+</script>
+</body>
+</html>

@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기획 노트 · AI 팁</title>
+<meta name="description" content="AI를 쓰면서 얻은 팁과 시사점 기록">
+<script>
+  try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --bg: #e9eef9; --dot: rgba(47, 79, 224, .10); --paper: rgba(250, 252, 255, .86); --paper-solid: #f8faff; --cell: #fbfcff;
+  --ink: #131d55; --ink-2: #4b5a98; --ink-3: #8593c4; --blue: #2f4fe0; --blue-ink: #ffffff;
+  --bar: #d4e2ff; --bar-ink: #1b2a78; --line: #9db2ef; --line-soft: #d3ddf7; --shadow: #a9bdf5;
+  --bubble: #e3ecff; --say: #eef0f4; --mark: #ffe58a; --ring: #bcd6fb;
+  --font-pixel: 'Galmuri11', 'Galmuri9', ui-monospace, monospace;
+  --font-mono: 'Galmuri Mono 11', 'GalmuriMono11', ui-monospace, 'Consolas', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+    --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+    --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+    --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+  --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+  --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+  --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --ring: #18266d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; font-family: var(--font-body); color: var(--ink); line-height: 1.6;
+  background: radial-gradient(var(--dot) 1px, transparent 1.2px) 0 0 / 18px 18px, var(--bg);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.ring { position: fixed; right: -90px; bottom: -110px; width: 380px; height: 300px; border-radius: 50%; border: 34px solid var(--ring); transform: rotate(-12deg); pointer-events: none; z-index: 0; }
+.ring::after { content: ""; position: absolute; left: -64px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--ring); }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.win { background: var(--paper); border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.bar { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 4px 0 10px; background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--line); font-family: var(--font-pixel); font-size: 12px; letter-spacing: .02em; user-select: none; }
+.bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: pointer; padding: 0; }
+.ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+
+/* sidebar */
+.nav { position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 260px; display: flex; flex-direction: column; transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s; }
+.nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; }
+.node + .node { margin-top: 4px; }
+.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
+.node-h:hover { background: var(--bubble); }
+.node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
+.caret path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.node.open > .node-h .caret { transform: rotate(90deg); }
+.node.off > .node-h { color: var(--ink-3); cursor: default; }
+.node.off > .node-h:hover { background: none; }
+.node.off .caret, .node.link .caret { opacity: .35; }
+.node.link > .node-h { color: var(--ink-2); }
+.kids { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+.node.open > .kids { grid-template-rows: 1fr; }
+.kids > ul { overflow: hidden; list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px dashed var(--line); }
+.leaf { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 6px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-size: 13.5px; color: var(--ink-2); text-decoration: none; }
+.leaf .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf:hover { color: var(--ink); background: var(--bubble); }
+.leaf.on { color: var(--blue); background: var(--bubble); font-weight: 600; }
+.scrim { display: none; }
+
+/* main */
+.main { position: relative; z-index: 1; margin-left: 292px; padding: 16px 24px 80px 16px; transition: margin-left .28s cubic-bezier(.3,.7,.2,1); }
+.wrap { max-width: 880px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: pointer; padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+.sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+#navBtn { display: none; }
+body.nav-closed #navBtn { display: grid; }
+body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
+body.nav-closed .main { margin-left: 0; }
+.search { position: relative; display: flex; align-items: center; width: min(300px, 100%); height: 38px; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.search svg { position: absolute; left: 11px; width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.7; fill: none; pointer-events: none; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none; padding: 0 34px; font: 14px var(--font-body); color: var(--ink); }
+.search input::placeholder { color: var(--ink-3); }
+.search:focus-within { border-color: var(--blue); }
+.search kbd { position: absolute; right: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-soft); padding: 0 5px; line-height: 18px; }
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.icon-sun { display: none; }
+.is-dark .icon-sun { display: block; }
+.is-dark .icon-moon { display: none; }
+
+/* badges */
+.badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-family: var(--font-pixel); font-size: 11.5px; color: var(--blue); border: 1px solid var(--blue); background: var(--paper-solid); white-space: nowrap; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.filters button { cursor: pointer; height: 28px; padding: 0 11px; font-family: var(--font-pixel); font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper-solid); }
+.filters button .n { margin-left: 6px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); }
+.filters button:hover { color: var(--blue); border-color: var(--blue); }
+.filters button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.filters button[aria-pressed="true"] .n { color: var(--blue-ink); opacity: .75; }
+
+/* list */
+.list { list-style: none; margin: 0; padding: 0; }
+.post { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 18px; padding: 22px 24px; border-top: 1px solid var(--line-soft); }
+.post:first-child { border-top: 0; }
+.post:hover { background: var(--bubble); }
+.post .no { grid-row: span 3; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); padding-top: 6px; }
+.post .meta { display: flex; align-items: center; gap: 10px; }
+.post .date { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); }
+.post h2 { margin: 4px 0 0; font-family: var(--font-pixel); font-weight: 400; font-size: 21px; line-height: 1.35; }
+.post h2 a { text-decoration: none; }
+.post h2 a::after { content: ""; position: absolute; inset: 0; }
+.post:hover h2 { color: var(--blue); }
+.post .ex { margin: 4px 0 0; font-size: 14px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.post .go { grid-column: 3; grid-row: 1 / span 3; align-self: center; width: 12px; height: 12px; color: var(--ink-3); }
+.post:hover .go { color: var(--blue); }
+.go path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.none { display: none; padding: 60px 0; text-align: center; font-family: var(--font-pixel); color: var(--ink-3); margin: 0; }
+.none.show { display: block; }
+
+/* modal */
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; }
+.modal-scrim { position: absolute; inset: 0; background: rgba(8, 13, 44, .38); animation: fade .2s; }
+.modal-win { position: relative; width: min(760px, 100%); max-height: calc(100vh - 48px); display: flex; flex-direction: column; background: var(--paper-solid); box-shadow: 6px 6px 0 var(--shadow); animation: pop .22s cubic-bezier(.3,.7,.2,1); }
+.modal-win .bar { flex: none; height: 34px; font-size: 13px; }
+.modal-win .article { overflow: auto; overscroll-behavior: contain; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px); } }
+body.modal-open { overflow: hidden; }
+
+/* article */
+.article { padding: 30px 36px 36px; }
+.article .meta { display: flex; align-items: center; gap: 10px; }
+.article h2 { margin: 12px 0 26px; font-family: var(--font-pixel); font-weight: 400; font-size: 30px; line-height: 1.3; }
+.article .p { margin: 0 0 18px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
+.note { display: flex; gap: 14px; align-items: baseline; margin: 0; padding: 16px 0; border-top: 1px dashed var(--line); font-size: 15px; line-height: 1.75; }
+.note .k { flex: none; display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-family: var(--font-pixel); font-size: 12px; white-space: nowrap; border: 1px solid var(--ink-3); color: var(--ink-2); }
+.note .t { min-width: 0; color: var(--ink-2); }
+.note.tip .k { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.note.tip .t { color: var(--ink); }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 34px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.pager a { max-width: 48%; font-size: 13.5px; text-decoration: none; color: var(--ink-2); }
+.pager a:hover { color: var(--blue); }
+.pager a .k { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.pager .next { margin-left: auto; text-align: right; }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 899px) {
+  .nav { left: 0; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: none; border-width: 0 1px 0 0; transform: translateX(-100%); opacity: 1; }
+  body.nav-open .nav { transform: none; box-shadow: 6px 0 0 var(--shadow); }
+  body.nav-closed .nav { transform: translateX(-100%); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(8, 13, 44, .35); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+  .main, body.nav-closed .main { margin-left: 0; padding: 12px 16px 60px; }
+  #navBtn { display: grid; }
+  .title h1 { font-size: 22px; }
+  .search { order: 5; width: 100%; }
+  .search kbd { display: none; }
+  .post { grid-template-columns: 30px minmax(0, 1fr); padding: 18px 16px; gap: 4px 10px; }
+  .post .go { display: none; }
+  .post h2 { font-size: 18px; }
+  .modal { padding: 0; place-items: end stretch; }
+  .modal-win { width: 100%; max-height: 92vh; box-shadow: none; border-width: 1px 0 0; }
+  .article { padding: 22px 18px 30px; }
+  .article h2 { font-size: 23px; }
+  .ring { width: 260px; height: 200px; border-width: 24px; right: -110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="ring" aria-hidden="true"></div>
+
+<aside class="nav win" id="nav" aria-label="메뉴">
+  <div class="bar">
+    <span class="ttl">기획 노트</span>
+    <button class="ctl" id="navClose" aria-label="메뉴 닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+  </div>
+  <nav class="tree" id="tree"></nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="wrap">
+    <header class="top">
+      <button class="sq" id="navBtn" aria-label="메뉴 열기"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+      <div class="title"><h1>AI 팁</h1><span class="n" id="count"></span></div>
+      <label class="search" id="searchBox">
+        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4L14 14"/></svg>
+        <input id="q" type="search" placeholder="제목 또는 내용 검색" autocomplete="off" aria-label="제목 또는 내용 검색">
+        <kbd>/</kbd>
+      </label>
+      <button class="sq" id="themeBtn" aria-label="화면 테마 전환">
+        <svg class="icon-moon" viewBox="0 0 16 16"><path d="M13 9.6A5.6 5.6 0 0 1 6.4 3a5.6 5.6 0 1 0 6.6 6.6z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg>
+      </button>
+    </header>
+
+    <div id="listView">
+      <div class="filters" id="filters" role="group" aria-label="구분"></div>
+      <section class="win">
+        <ol class="list" id="list"></ol>
+        <p class="none" id="none">검색 결과 없음</p>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-scrim" data-close></div>
+  <div class="modal-win win" role="dialog" aria-modal="true" aria-labelledby="postTitle">
+    <div class="bar">
+      <span class="ttl" id="modalBar">AI 팁</span>
+      <button class="ctl" data-close aria-label="닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+    </div>
+    <article class="article" id="postView"></article>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   활용 팁 — 새 글은 맨 위에 추가 (최신순)
+   id: 영문 주소, title: 제목, cat: 구분(배지), date: 날짜
+   body: [{ p: '본문' } | { tip: '팁' } | { insight: '시사점' }]
+   ════════════════════════════════════════════ */
+const POSTS = [
+  {
+    id: 'mass-brainstorm',
+    title: '아이디어가 안 떠오를 때: 서브 에이전트로 대규모 브레인스토밍',
+    cat: '제작 워크플로',
+    date: '2026-11-11',
+    body: [
+      { p: '제안서나 기획안을 작성해야 하는데 생각나는 아이디어가 없을 때 (예: 공모전, 신규 서비스, 사업 제안, 개선 과제)' },
+      { p: '대규모 브레인 스토밍을 진행하고 싶습니다.\n목표: (주제)에서 어떤 아이디어를 낼 수 있을지?\n서브 에이전트(모델은 haiku 5.5 low)를 이용해서 분야별로 아이디어를 300개씩 내게 하고,\n거기에서 당신이 상위 20건을 뽑아서 알려 주세요.' },
+      { tip: '여기에서 나온 의견에서 이어가면서 아이디어를 구체화함' },
+      { insight: '논의의 범위를 늘리되, 비용은 적게 함' },
+    ],
+  },
+  {
+    id: 'effect-names',
+    title: 'AI가 만든 화면이 어설픈 이유: 원하는 효과의 이름을 모른다',
+    cat: '제작 워크플로',
+    date: '2026-11-10',
+    body: [
+      { p: 'AI에게 랜딩 페이지를 만들게 하면 어디서 본 듯한 화면이 나오고, 고치려 해도 "좀 더 고급스럽게", "제목이 멋있게 나타나게"처럼 말할 수밖에 없다. 머릿속에 그린 움직임은 분명한데 그걸 부르는 이름을 모르니, AI는 가장 흔한 효과로 채운다. 결과물이 AI slop처럼 보이는 큰 원인은 AI의 실력보다 요청이 흐릿한 데 있다.' },
+      { p: '이 문제를 겨냥한 오픈소스가 Motion Prompt다. 모션 그래픽, 카메라 이동, UI 요소, 랜딩 페이지·웹 효과, 사진 룩·조명 다섯 분야에서 이름 192개를 모아, 이름마다 움직이는 예시, 한 줄 뜻, AI에게 요청하는 예문을 붙였다. 갤러리에서 효과를 고르고 복사해 AI에 붙이면 데모와 명세 주소까지 함께 전달된다. 스킬로 설치하면 에이전트에게 "라이브러리 열어 줘"라고 한 뒤 고른 효과를 바로 적용하게 할 수 있다.' },
+      { p: '쓰는 순서: ① 원하는 느낌과 가장 가까운 예시를 갤러리에서 찾는다. ② 이름에 길이·세기·대상을 붙여 요청한다. 예: "제목을 아래에서 마스크 리빌로 0.6초, 줄마다 조금씩 늦게". ③ 바꿀 부분과 유지할 부분을 같이 적는다. 예: "제목 등장 부분만 바꾸고 앞뒤 전환과 길이는 그대로". ④ 효과는 화면 하나에 두세 개로 제한한다.' },
+      { tip: '카메라 이동이나 사진 스타일처럼 영상·이미지 생성에 쓰는 이름은 프롬프트 용어 메뉴에도 정리해 두었다. 웹 효과는 Motion Prompt 갤러리에서, 생성 이미지·영상의 구도와 연출은 프롬프트 용어에서 찾는다.' },
+      { insight: '이름을 알면 요청이 짧아지고 결과가 정확해진다. 기획서와 디자인 요청서도 마찬가지라, "부드럽게 나타남" 대신 효과 이름과 길이를 적으면 AI든 디자이너든 개발자든 같은 그림을 본다. 내 분야의 이름을 모아 두는 일이 AI 시대 기획자의 기본 도구가 된다.' },
+    ],
+  },
+  {
+    id: 'judge-speed',
+    title: '시안은 3초 만에 나오는데 결정은 왜 멈출까',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: 'AI로 시안 스무 개를 몇 초 만에 받을 수 있게 됐지만, 그중 무엇을 고를지 정하는 속도는 그대로다. 그래서 피드백이 "좀 AI 같아요", "뭔가 별로예요" 같은 느낌으로 오간다. 듣는 사람은 무엇을 고쳐야 할지 알 수 없으니 다시 만들고, 또 같은 말을 듣는다.' },
+      { p: '결정이 멈추는 지점은 대개 세 군데다. 승인자가 늦게 보거나, 판단 기준이 흐리거나, 누가 최종 결정을 내리는지 모호할 때. 만드는 비용이 낮아질수록 결과물은 늘어나고, 기준이 없으면 대안이 많아질수록 오히려 방향이 흐려진다.' },
+      { p: '해결은 만들기 전에 판단할 환경을 정해 두는 것이다. ① 누가 보고 누가 최종 결정하는지 정한다. ② 무엇을 우선할지, 무엇은 받아들이지 않을지 기준을 미리 적는다. ③ 피드백은 "이 부분이 고객에게 이렇게 읽힐 것 같으니 이렇게 바꾸자"처럼 대상·이유·방향을 담아 말한다. ④ 고른 안에는 어떤 기준으로 비교해 왜 골랐는지 한두 줄을 남긴다.' },
+      { tip: '"AI 같아요"라는 말이 나오면 바로 다시 만들지 말고, 어떤 부분이 그렇게 느껴지는지(문구, 색, 구도, 정보 구성) 하나만 짚어 달라고 되묻는다. 그 답이 다음 프롬프트의 조건이 된다.' },
+      { insight: 'AI는 리서치와 초안을 넓고 빠르게 모아 주는 조수 역할을 잘한다. 고르는 일은 사람에게 남고, 고르는 기준을 미리 세워 두는 것이 기획자의 일이 된다.' },
+    ],
+  },
+  {
+    id: 'before-build',
+    title: '실행 전에 기획자가 정해 둘 다섯 가지',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: '프로젝트는 잘 정리된 기획서에서 시작하지 않는다. 대표의 방향, 실무자의 요청, 사용자 불만, 개발·운영팀의 걱정이 뒤섞인 채 들어온다. 이 상태에서도 일정표와 화면, 기능 목록은 만들어지고, AI를 쓰면 더 빨리 만들어진다. 앞으로 가는 것처럼 보이지만 기준이 없으니 중간에 크게 흔들린다.' },
+      { p: '요구사항을 모으는 것만으로는 프로젝트가 되지 않는다. 요구사항끼리 무엇이 목적이고 무엇이 수단인지, 무엇이 핵심이고 무엇이 확장인지 관계를 정리해야 한다. AI는 무엇을 만들 수 있는지 보여 주지만, 무엇을 만들어도 되는지는 정해 주지 않는다.' },
+      { p: '실행 전에 정할 것: ① 무엇을 만들고, 왜 지금인가. ② 이번 범위는 어디까지인가. ③ 바뀌어도 되는 것과 바뀌면 안 되는 것. ④ 누가 어떤 기준으로 결정하는가. ⑤ 완성 후 누가 어떻게 운영하는가. 요구사항은 "지금 결정할 것"과 "나중으로 열어 둘 것"으로 나눠 둔다.' },
+      { tip: '이 다섯 가지를 한 장에 적어 AI 작업 지시의 맨 앞에 붙이면, AI가 범위 밖 기능을 덧붙이거나 바뀌면 안 되는 부분을 건드리는 일이 줄어든다.' },
+      { insight: '실행 비용이 낮아진 만큼 방향이 틀렸을 때의 손해는 커진다. 기준을 먼저 세우고 실행을 AI에 맡기면, 회의에서 쓰는 말과 우선순위, 산출물의 의미가 같은 기준 위에 놓인다.' },
+    ],
+  },
+  {
+    id: 'agent-conditions',
+    title: 'AI 에이전트에게는 프롬프트보다 실행 조건',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: '예전 AI는 사람이 묻고 AI가 답하면, 판단과 실행은 사람이 했다. AI 에이전트는 목표를 받아 단계를 나누고, 도구에 접근해 직접 결과를 만든다. 예를 들어 고객 문의를 분류하고, 긴급 건을 고르고, 담당자별 답변 초안을 쓰고, 미처리 리포트까지 한 번에 만든다.' },
+      { p: '이때 오류의 무게가 달라진다. 틀린 답변은 사람이 읽고 고치면 되지만, 에이전트의 실수는 잘못된 발송, 잘못된 공유, 잘못된 상태 변경처럼 업무 자체를 바꿔 버린다. 그래서 "AI가 이 일을 할 수 있는가"보다 "지금 이 일을 해도 되는 상태인가"를 먼저 물어야 한다.' },
+      { p: '프롬프트는 방향을 주고, 조건은 실행 범위를 정한다. 에이전트에게 줄 것: ① 상태: 어떤 상태의 건만 처리하는가. ② 범위: 직접 답변까지인가, 초안까지인가. ③ 넘김: 어떤 경우 사람에게 넘기는가. ④ 권한과 책임: 무엇은 승인 없이 하면 안 되는가. ⑤ 검증과 기록: 결과를 어떤 기준으로 확인하고 어디에 남기는가. ⑥ 멈춤: 어떤 상황이면 멈추는가.' },
+      { tip: '되돌릴 수 없는 동작(발송, 삭제, 결제, 외부 공유)은 목록으로 따로 적고 "사람 확인 후 실행"으로 묶어 둔다. 코딩 에이전트의 권한 규칙과 같은 원리다.' },
+      { insight: '상태와 조건을 정의하는 일은 기획자가 원래 해 온 일이다. 예약 상태별로 허용되는 동작을 정하던 방식이 에이전트 업무 설계에도 그대로 쓰인다. 에이전트를 몇 개 쓰는지보다 어떤 기준으로 움직이게 하는지에서 차이가 난다.' },
+    ],
+  },
+  {
+    id: 'idea-debate',
+    title: '아이디어는 반박을 통과해야 실행 후보가 된다',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: 'AI 덕분에 아이디어는 얼마든지 늘릴 수 있다. 그런데 실패의 원인은 아이디어가 모자라서보다, 검증하지 않은 아이디어를 너무 빨리 실행해서인 경우가 많다. AI에게 그냥 물으면 장점 위주로 정리해 주기 때문에 좋아 보이는 안이 그대로 실행 목록에 오른다.' },
+      { p: '한 가지 방법은 같은 아이디어를 두 입장으로 나눠 검토하는 것이다. 한쪽은 필요성, 전략적 의미, 기대 효과를 들어 끝까지 지키고, 다른 쪽은 전제 오류, 비용, 운영 복잡도, 사용자 오해, 실패 가능성을 들어 끝까지 공격한다. 어느 쪽이 이기는지는 중요하지 않다. 강한 반박 뒤에도 남는 근거가 있는지를 본다.' },
+      { p: '예: 서비스 개편에서 새 기능을 넣자는 안. 찬성은 불편 감소, 전환율 상승, 브랜드 경험 강화를 든다. 반대는 운영팀이 감당할 수 있는지, 관리 비용이 과하지 않은지, 사용자가 의도를 다르게 이해하지 않는지, 만든 뒤에도 고칠 수 있는지를 묻는다. 이유가 남으면 실행 후보로 올리고, 남지 않으면 보류한다.' },
+      { tip: '두 입장을 한 대화에서 쓰게 하면 서로 눈치를 본다. 서브에이전트나 다른 AI에 따로 맡기거나, 최소한 찬성 결론을 보여 주지 않은 상태에서 반대를 쓰게 한다. 프롬프트 메뉴에 바로 쓸 수 있는 형태로 정리해 두었다.' },
+      { insight: 'AI는 답을 내리는 쪽보다 생각을 나누고 부딪히게 하는 상대로 쓸 때 판단이 선명해진다. 남겨야 할 것은 AI의 결과물보다, 반박을 거친 뒤 끝까지 남은 근거와 판단 이유다.' },
+    ],
+  },
+  {
+    id: 'team-ai-rules',
+    title: '혼자 AI를 잘 쓰는 것과 팀이 같은 기준으로 쓰는 것',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: '개인이 AI를 잘 쓰면 그 사람의 일은 빨라진다. 하지만 팀에 공통 기준이 없으면 어떤 사람은 고객 자료를 그대로 넣고, 어떤 사람은 결과물을 확인 없이 넘기고, 문제가 생겼을 때 누가 책임지는지도 흐려진다. 품질, 보안, 책임, 운영 방식이 사람마다 달라진다.' },
+      { p: 'AI가 제안, 구축, 검증, 운영 단계 안으로 들어오면서 프로젝트에서 물어야 할 질문도 늘었다. 무엇을 언제까지 누가 만드는지에 더해, 결과물을 어떤 기준으로 검증할지, AI를 어느 단계까지 쓸지, 어떤 데이터는 넣으면 안 되는지, 만든 뒤 어떻게 운영하고 개선할지를 정해야 한다.' },
+      { p: '시작은 작게 해도 된다. ① 넣지 않을 정보 목록(개인정보, 계약 정보, 미공개 자료). ② AI를 쓰는 단계와 쓰지 않는 단계. ③ 결과물 확인자와 확인 기준. ④ AI가 만든 부분을 기록하는 방식. ⑤ 운영 중 문제가 생겼을 때의 대응 순서. 이 다섯 줄을 프로젝트 착수 문서에 넣는다.' },
+      { tip: '팀 규칙은 사람이 외우게 하기보다 AI 쪽에 넣어 두는 편이 잘 지켜진다. 규칙 파일(AGENTS.md, CLAUDE.md)이나 사내 AI 도구의 시스템 프롬프트에 같은 내용을 적어 둔다.' },
+      { insight: '고객은 빠른 결과물만큼 명확한 기준, 낮은 위험, 운영 가능성을 본다. 툴을 몇 개 쓰는지보다 반복할 수 있고 안전한 일하는 방식이 경쟁력이 되고, 프로젝트는 만들고 끝나는 일에서 제안부터 운영까지 이어지는 흐름이 된다.' },
+    ],
+  },
+  {
+    id: 'geo-structure',
+    title: '검색 노출에서 AI 답변 속 선택으로: SEO → AEO → GEO',
+    cat: '기획 관점',
+    date: '2026-11-10',
+    body: [
+      { p: '사람들이 검색 결과 목록 대신 AI 답변을 먼저 보기 시작했다. AI는 페이지를 그대로 보여 주지 않고 필요한 부분만 가져와 답을 다시 구성한다. 검색 결과 상위에 있어도 AI 답변에 인용되지 않으면 사용자는 그 페이지를 보지 못한다.' },
+      { p: '목표가 단계별로 바뀐다. SEO는 검색 결과에 노출되는 것, AEO는 AI 답변 안에 포함되는 것, GEO는 AI가 여러 선택지 중 우리를 추천하게 하는 것이다(이 구분은 보는 사람마다 조금씩 다르다). 경쟁 단위도 페이지에서 문장과 구조로, 다시 판단 기준으로 옮겨 간다.' },
+      { p: 'AI가 가져가기 좋은 콘텐츠의 조건: ① 문단 하나만 떼어 읽어도 뜻이 통한다. ② 정의, 목록, 단계, 비교처럼 재사용하기 쉬운 구조다. ③ 출처와 수치가 분명해 믿을 수 있다. ④ 페이지 하나가 하나의 주제로 완결된다. ⑤ 같은 개념을 사이트 전체에서 같은 말로 부른다.' },
+      { tip: '기획서에 SEO 항목(title, description, alt)을 넣을 때 구조화 데이터(Schema.org)로 기관·인물·행사 정보를 표시하는 항목과, 배포 전에 메타 정보 누락을 자동 점검하는 절차를 함께 넣는다.' },
+      { insight: 'GEO는 콘텐츠를 많이 쓰는 문제보다 구조의 문제다. 마케팅만의 일이 아니라 기획(정보 구조), 콘텐츠(문장), 개발(마크업), 데이터(정확성)가 같이 맞춰야 해서, 웹 기획 단계에서 처음부터 요구사항으로 잡아 두는 것이 좋다.' },
+    ],
+  },
+  {
+    id: 'non-dev-handoff',
+    title: '비개발자가 AI로 만든 서비스, 돌아가지만 넘겨받을 수 없다',
+    cat: 'AI 코딩 환경',
+    date: '2026-11-09',
+    body: [
+      { p: '한 개발자가 프로그래밍 경험 없는 지인의 결과물을 봐 준 이야기다. 지인은 고객을 확보한 상태에서 AI 코딩 도구로 업무 도구를 여러 개 만들었고, 돈을 내겠다는 고객까지 생겼다. 그런데 문제가 생겨 코드를 받아 보니 Git 기록 없이 개발부터 배포까지 전부 AI 대화 세션 안에서 진행됐고, 넘겨받은 것은 서버에서 만든 1GB 넘는 압축 파일 하나였다. 폴더 세 단계를 파고들어서야 코드를 찾았고, API가 열 개도 안 되는 작은 제품 하나에 데이터베이스가 3개나 있었다.' },
+      { p: '시사점은 두 가지다. 첫째, AI 덕분에 고객과 사업 기회를 가진 사람이 직접 제품을 만들어 돈을 버는 일이 실제로 가능해졌다. 둘째, 화면에 보이지 않는 부분은 아무도 챙기지 않았다. 변경 기록, 폴더 구조, 데이터 설계, 다시 배포할 수 있는 방법이 없어서 "지금은 돌아가지만 누구도 이어서 고칠 수 없는" 상태가 됐다. 맥락은 대화 세션에만 남아 있어 세션이 끝나면 사라진다. 참고로 작은 서비스에 SQLite를 쓴 것 자체는 문제가 아니다. 이유 없이 데이터가 여러 곳에 흩어진 것이 문제다. 백업과 수정이 어렵고, 같은 데이터가 서로 달라지기 쉽다.' },
+      { p: '해결은 처음 하루에 대부분 끝난다. ① 혼자 만들어도 첫날부터 Git 저장소를 만들고 비공개 GitHub에 올린다. AI에게 "작업 단위마다 커밋해 줘"라고만 해도 된다. ② 규칙 파일(AGENTS.md, CLAUDE.md)에 "데이터베이스는 하나, 새로 만들기 전에 물어볼 것" 같은 구조 규칙을 적어 둔다. ③ 세션을 끝낼 때마다 README와 인계서를 갱신하게 해서 맥락을 대화 밖에 남긴다. ④ 배포는 서버에서 만든 압축 파일이 아니라 저장소에서 다시 만들 수 있는 방식으로 한다. ⑤ 돈을 받기 전에 한 번은 개발자나 AI로 구조·데이터·백업·보안을 점검한다.' },
+      { tip: '고객 데이터를 받기 시작하면 책임이 생긴다. 유료 전환 전에 "백업이 있는지, 키가 코드에 박혀 있지 않은지, 다른 사람이 받아서 다시 띄울 수 있는지" 세 가지만이라도 확인한다.' },
+      { insight: 'AI는 만드는 비용을 크게 낮췄지만, 고치고 넘겨주는 비용은 나중에 한꺼번에 청구된다. 기획자가 AI로 무언가를 만들 때도 출시 기준에 기능뿐 아니라 기록, 구조, 백업, 재배포 가능 여부를 넣어 두어야 한다.' },
+    ],
+  },
+  {
+    id: 'game-from-video',
+    title: 'AI로 게임 만들기: 빈 화면 대신 영상부터',
+    cat: '제작 워크플로',
+    date: '2026-11-09',
+    body: [
+      { p: '아무것도 없는 상태에서 AI에게 "게임 만들어 줘"라고 하면 기준이 없어 평범한 결과가 나온다. 한 개발자는 원하는 게임의 장면을 먼저 영상으로 생성하고, 그 영상을 외형·세계·캐릭터의 기준으로 삼아 하루 만에 3D 게임을 만들었다고 기록했다. 쓴 도구는 Claude(코딩), 이미지·영상 생성 AI, Tripo(3D 변환), Blender, Three.js다.' },
+      { p: '① 기준 영상: 원하는 게임 장면을 영상으로 만든다. ② 세계: 영상을 캡처해 배경 에셋을 Blender로 다시 만들고 Three.js에 배치한다. 에이전트 여러 개가 나눠 만들고 서로 확인한다. ③ 캐릭터: 캡처한 캐릭터를 이미지 AI로 앞·옆·뒤 4면도로 그리고, 3D 모델로 바꾼 뒤 옷 물리와 애니메이션을 붙인다. ④ 플레이 테스트: 더 만들기 전에 동작부터 확인한다. ⑤ 레벨 확장: 같은 화풍으로 레벨마다 콘셉트 아트를 여러 장 만든다. ⑥ 반복: 실행하고, 버그를 알려 주고, 에이전트가 고치게 하는 과정을 되풀이한다.' },
+      { p: '한계도 있다. "하루"는 도구에 익숙한 사람이 유료 도구 여러 개를 쓴 결과다. 영상은 정해진 시점만 보여 주기 때문에 보이지 않는 각도는 AI가 추측해서 채우고, 3D 변환 결과도 손질이 필요하다.' },
+      { tip: '4단계가 핵심이다. 영상은 "어떻게 보일지"는 알려 주지만 "재미있는지"는 알려 주지 않는다. 레벨을 늘리기 전에 직접 플레이해 본다.' },
+      { insight: '완성된 모습을 먼저 확정하고 → 분해하고 → 다시 조립하는 순서는 게임만의 방법이 아니다. 서비스 기획에서도 목업이나 프로토타입 영상을 먼저 만들어 AI에 기준으로 주면, 빈 화면에서 시작할 때보다 결과가 덜 흔들린다.' },
+    ],
+  },
+  {
+    id: 'git-first-wall',
+    title: '비개발자가 AI 코딩 도구로 협업할 때 첫 번째 벽은 Git',
+    cat: 'AI 코딩 환경',
+    date: '2026-11-09',
+    body: [
+      { p: 'AI 코딩 도구 덕분에 비개발자도 코드를 만들 수 있게 됐지만, 여럿이 같은 저장소에서 일하기 시작하면 가장 먼저 막히는 곳은 코드가 아니라 Git이다. 커밋, 푸시, 브랜치를 처음부터 설명해야 하고, 그중에서도 브랜치를 가장 헷갈린다. 지금 어느 브랜치에 있는지 모르고, 작업 전에 풀을 받지 않으니 서로의 변경이 엇갈린다.' },
+      { p: '혼자 바이브 코딩을 할 때는 AI가 알아서 커밋해도 큰 문제가 없다. 협업에서는 "지금 내가 어느 가지에서, 최신 내용 위에서 작업하고 있는가"를 사람이 알고 있어야 한다. 브랜치가 어려운 이유는 화면에 보이지 않는 상태이기 때문이다.' },
+      { p: '해결은 개념을 다 가르치는 것보다 규칙을 줄이고 상태를 보이게 하는 쪽이 빠르다. ① 개념은 비유 하나로 묶는다: 커밋은 저장, 푸시는 올리기, 풀은 받기, 브랜치는 내 작업용 사본. ② 규칙은 네 줄로 줄인다: 시작 전에 풀, 내 브랜치에서만 작업, main에 직접 푸시 금지, 끝나면 PR. ③ AI에게 맡기되 보고하게 한다: 작업 시작과 끝에 현재 브랜치와 바뀐 파일을 쉬운 말로 알려 주게 한다. ④ 위험한 동작은 권한 규칙으로 막는다: main 직접 푸시, 강제 푸시는 확인을 받게 한다. ⑤ GitHub Desktop 같은 화면 도구로 현재 브랜치를 늘 눈에 보이게 둔다.' },
+      { tip: '첫 실습에서 일부러 같은 줄을 둘이 고쳐 충돌을 한 번 겪어 보게 하면, 풀과 브랜치가 왜 필요한지 설명보다 빨리 이해한다.' },
+      { insight: 'AI가 낮춘 것은 "코드를 쓰는 벽"이고, "함께 일하는 벽"은 그대로 남아 있다. 비개발자 온보딩에서 Git은 도구 사용법보다 협업 규칙으로 가르쳐야 하고, 그 규칙을 AI와 권한 설정에 미리 넣어 두면 사람이 외워야 할 것이 줄어든다.' },
+    ],
+  },
+  {
+    id: 'ai-ecosystem-map',
+    title: 'AI 환경 구조도에서 배울 것: 만드는 법보다 막는 법',
+    cat: 'AI 코딩 환경',
+    date: '2026-11-09',
+    body: [
+      { p: '한 사용자가 Claude Code를 중심으로 만든 AI 환경을 한 장의 구조도로 공개했다. 흐름은 입구 → 사령탑(Claude Code) → 하네스(판단·권한·안전) → 분배 → 분야별 스킬 → 검증 → 도구·API → 출구 → 공개 순이다. 입구는 스마트폰 앱, 터미널, Discord, 정기 작업이고, 분배는 다른 AI에 맡기기, 스킬로 만들기, 외부 서비스 조작, 외부 API 호출 4갈래다.' },
+      { p: '모든 요청은 작업 전에 하네스를 통과한다. 판단 AI 2개가 위험도와 이미지 품질을 점수로 내고, 훅 11개가 요청 제출·도구 실행 전후·종료 시점에 자동으로 검사한다. 권한 규칙은 삭제나 강제 푸시 같은 동작을 확인받게 하고, 금지된 동작은 우회하지 않고 멈추게 한다. API 키 27개는 한 파일에 모아 AI가 직접 읽지 못하게 했다. 큰 결과물은 다른 회사의 AI에게도 교차 리뷰를 받은 뒤 공개한다.' },
+      { p: '아래에는 지식·자산 층이 깔려 있다. 기억 메모 273건, Obsidian 노트 905개, 디자인 자산 1,340건, GitHub 저장소 17개를 각 스킬이 읽고 쓴다. 스킬은 147개, 서브에이전트는 150개다.' },
+      { tip: '이 그림을 AI에 읽히면 폴더 구조와 빈 틀은 만들 수 있지만, 스킬 내용과 기억, 자산은 그림에 이름만 있다. 그대로 따라 만들기보다 내 설정과 비교해서 빠진 것을 찾는 데 쓰는 편이 낫다.' },
+      { insight: '분야별 스킬은 사람마다 다르지만, 실행 전 판단 층, AI가 키를 못 보게 하는 구조, 금지 시 멈추기, 교차 리뷰는 누구 환경에나 옮길 수 있다. 처음에는 상시 규칙(CLAUDE.md) → 권한 규칙 → 완료 전 점검 → 자주 하는 작업의 스킬화 순으로 작게 시작한다.' },
+    ],
+  },
+  {
+    id: 'ai-website-stack',
+    title: 'AI가 조건 없이 웹사이트를 생성한다면?',
+    cat: 'AI 결과물 패턴',
+    date: '2026-11-09',
+    body: [
+      { p: 'Next.js, React, Tailwind, PostgreSQL 조합으로 생성할 확률이 높다.' },
+      { tip: '다른 조합으로 만들고 싶으면 미리 명시해서 다른 안을 택하는 게 좋음' },
+      { insight: '기술 자체는 문제가 없으나 인터넷에 많이 있는 정보를 학습하는 ai 특성상 패턴이 반복되는 거고, 그 결과물이 다시 학습 데이터가 됨 → 더 나은 새 기술이 나오더라도 자리잡기 어려울 수 있음' },
+    ],
+  },
+];
+
+const NOTE_LABEL = { tip: '팁', insight: '시사점' };
+
+const MENU = [
+  { id: 'it', title: 'IT 용어', href: '기획 노트.html' },
+  { id: 'dict', title: 'IT 기술 사전', href: 'IT 기술 사전.html' },
+  { id: 'job', title: '직무 용어', href: '직무 용어.html' },
+  { id: 'nlp', title: 'NLP 기초', href: 'NLP 기초.html' },
+  { id: 'ai', title: 'AI 팁', current: true, kids: [
+    { title: '활용 팁', current: true },
+    { title: '프롬프트', href: '프롬프트.html' },
+    { title: '프롬프트 용어', href: '프롬프트 용어.html' },
+  ]},
+  { id: 'ref', title: '참고 사이트', href: '레퍼런스.html' },
+  { id: 'api', title: '공개 API', href: '공개 API.html' },
+];
+
+/* ════════════════════════════════════════════ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const pad = n => String(n).padStart(2, '0');
+const fmt = d => d.replace(/-/g, '.');
+const mq = matchMedia('(max-width: 899px)');
+const caret = '<svg class="caret" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>';
+
+const posts = [...POSTS].sort((a, b) => b.date.localeCompare(a.date));
+const cats = [...new Set(posts.map(p => p.cat))];
+const catCount = c => posts.filter(p => p.cat === c).length;
+let cat = '';
+
+function renderTree() {
+  const openNodes = store.get('pn.ai.tree', ['ai']);
+  $('#tree').innerHTML = MENU.map(m => {
+    if (m.off) return `<div class="node off"><span class="node-h">${caret}${esc(m.title)}</span></div>`;
+    if (m.href) return `<div class="node link"><a class="node-h" href="${esc(m.href)}">${caret}${esc(m.title)}</a></div>`;
+    const kids = (m.kids || []).map(k => k.current
+      ? `<li><button class="leaf on" data-cat="">${esc(k.title)}<span class="n">${posts.length}</span></button></li>`
+      : `<li><a class="leaf" href="${esc(k.href)}">${esc(k.title)}</a></li>`).join('');
+    return `<div class="node${openNodes.includes(m.id) ? ' open' : ''}" data-node="${m.id}">
+      <button class="node-h" aria-expanded="${openNodes.includes(m.id)}">${caret}${esc(m.title)}</button>
+      <div class="kids"><ul>${kids}</ul></div></div>`;
+  }).join('');
+}
+
+function renderFilters() {
+  $('#filters').hidden = cats.length < 2;
+  $('#filters').innerHTML = [['', '전체', posts.length], ...cats.map(c => [c, c, catCount(c)])]
+    .map(([v, l, n]) => `<button data-cat="${esc(v)}" aria-pressed="${v === cat}">${esc(l)}<span class="n">${n}</span></button>`).join('');
+}
+
+const excerpt = p => (p.body.find(b => b.p) || p.body[0] || {});
+function renderList() {
+  const ql = q.value.trim().toLowerCase();
+  const texts = p => p.body.map(b => Object.values(b)[0] || '');
+  const list = posts.filter(p => (!cat || p.cat === cat) && (!ql || [p.title, ...texts(p)].some(t => t.toLowerCase().includes(ql))));
+  const hl = t => ql ? String(t ?? '').split(new RegExp(`(${escRe(q.value.trim())})`, 'gi')).map((s, i) => i % 2 ? `<mark>${esc(s)}</mark>` : esc(s)).join('') : esc(t);
+  $('#list').innerHTML = list.map(p => {
+    const no = posts.length - posts.indexOf(p);
+    const hit = ql && !p.title.toLowerCase().includes(ql) && texts(p).find(t => t.toLowerCase().includes(ql));
+    const at = hit ? hit.toLowerCase().indexOf(ql) : -1;
+    const ex = hit ? (at > 24 ? '…' + hit.slice(at - 20) : hit) : (Object.values(excerpt(p))[0] || '');
+    return `<li class="post">
+      <span class="no">${pad(no)}</span>
+      <div class="meta"><span class="badge">${esc(p.cat)}</span><span class="date">${fmt(p.date)}</span></div>
+      <h2><a href="#p/${esc(p.id)}">${hl(p.title)}</a></h2>
+      <p class="ex">${hl(ex)}</p>
+      <svg class="go" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>
+    </li>`;
+  }).join('');
+  $('#none').classList.toggle('show', !list.length);
+  $('#count').textContent = (ql || cat) ? `${list.length}/${posts.length}` : posts.length;
+}
+
+function renderPost(p) {
+  const i = posts.indexOf(p);
+  const prev = posts[i + 1], next = posts[i - 1];
+  const body = p.body.map(b => {
+    if (b.p) return `<p class="p">${esc(b.p)}</p>`;
+    const k = Object.keys(b)[0];
+    return `<div class="note ${k}"><span class="k">${esc(NOTE_LABEL[k] || k)}</span><span class="t">${esc(b[k])}</span></div>`;
+  }).join('');
+  $('#modalBar').textContent = `${pad(posts.length - i)} / ${pad(posts.length)}`;
+  $('#postView').innerHTML = `
+    <div class="meta"><span class="badge">${esc(p.cat)}</span><span class="date" style="font-family:var(--font-mono);font-size:12px;color:var(--ink-3)">${fmt(p.date)}</span></div>
+    <h2 id="postTitle">${esc(p.title)}</h2>
+    ${body}
+    ${prev || next ? `<nav class="pager">
+      ${prev ? `<a href="#p/${esc(prev.id)}"><span class="k">이전 글</span>${esc(prev.title)}</a>` : ''}
+      ${next ? `<a class="next" href="#p/${esc(next.id)}"><span class="k">다음 글</span>${esc(next.title)}</a>` : ''}
+    </nav>` : ''}`;
+}
+
+let lastFocus = null;
+const setHash = h => { try { history.replaceState(null, '', h || location.pathname + location.search); } catch (e) {} };
+function route() {
+  const m = location.hash.match(/^#p\/(.+)$/);
+  show(m && posts.find(x => x.id === decodeURIComponent(m[1])));
+}
+function openPost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  setHash(`#p/${id}`);
+  show(p);
+}
+function show(p) {
+  const wasOpen = !$('#modal').hidden;
+  $('#modal').hidden = !p;
+  document.body.classList.toggle('modal-open', !!p);
+  if (p) {
+    if (!wasOpen) lastFocus = document.activeElement;
+    renderPost(p);
+    $('#postView').scrollTop = 0;
+    $('#modal .ctl').focus({ preventScroll: true });
+    document.title = `${p.title} · AI 팁`;
+  } else {
+    document.title = '기획 노트 · AI 팁';
+    if (wasOpen && lastFocus) lastFocus.focus({ preventScroll: true });
+  }
+}
+function closeModal() {
+  if ($('#modal').hidden) return;
+  setHash('');
+  show(null);
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#p/"]');
+  if (a) { e.preventDefault(); openPost(decodeURIComponent(a.getAttribute('href').slice(3))); }
+});
+
+function setCat(c) {
+  cat = c;
+  renderFilters();
+  renderList();
+  closeModal();
+}
+
+const q = $('#q');
+q.addEventListener('input', renderList);
+$('#filters').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setCat(b.dataset.cat); });
+$('#modal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeModal(); });
+window.addEventListener('hashchange', route);
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== q && $('#modal').hidden && !e.ctrlKey && !e.metaKey) { e.preventDefault(); q.focus(); }
+  if (e.key === 'Escape') {
+    if (!$('#modal').hidden) closeModal();
+    else if (document.activeElement === q && q.value) { q.value = ''; renderList(); }
+    else if (document.body.classList.contains('nav-open')) setNav(false);
+  }
+});
+
+function setNav(open) {
+  if (mq.matches) document.body.classList.toggle('nav-open', open);
+  else { document.body.classList.toggle('nav-closed', !open); store.set('pn.navClosed', !open); }
+}
+$('#navBtn').addEventListener('click', () => setNav(mq.matches ? !document.body.classList.contains('nav-open') : true));
+$('#navClose').addEventListener('click', () => setNav(false));
+$('#scrim').addEventListener('click', () => setNav(false));
+if (store.get('pn.navClosed', false)) document.body.classList.add('nav-closed');
+mq.addEventListener('change', () => document.body.classList.remove('nav-open'));
+
+$('#tree').addEventListener('click', e => {
+  const h = e.target.closest('.node:not(.off):not(.link) > .node-h');
+  if (h) {
+    const open = h.parentElement.classList.toggle('open');
+    h.setAttribute('aria-expanded', open);
+    store.set('pn.ai.tree', $$('.node.open').map(n => n.dataset.node));
+    return;
+  }
+  const leaf = e.target.closest('button.leaf');
+  if (leaf) { setCat(leaf.dataset.cat); if (mq.matches) setNav(false); }
+});
+
+const dark = matchMedia('(prefers-color-scheme: dark)');
+function isDark() { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : dark.matches; }
+function syncThemeIcon() { document.body.classList.toggle('is-dark', isDark()); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('pn.theme', next); } catch (e) {}
+  syncThemeIcon();
+});
+dark.addEventListener('change', syncThemeIcon);
+
+renderTree();
+renderFilters();
+renderList();
+syncThemeIcon();
+route();
+</script>
+</body>
+</html>
