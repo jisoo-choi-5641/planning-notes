@@ -80,7 +80,7 @@ mark { background: var(--mark); color: inherit; padding: 0 1px; }
 }
 .bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar .n { font-family: var(--font-mono); font-size: 11px; opacity: .7; }
-.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: pointer; padding: 0; }
+.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: var(--hand); padding: 0; }
 .ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
 .ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -89,7 +89,7 @@ mark { background: var(--mark); color: inherit; padding: 0 1px; }
 .nav { position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 260px; display: flex; flex-direction: column; transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s; }
 .nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; overscroll-behavior: contain; }
 .node + .node { margin-top: 4px; }
-.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: pointer; font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
+.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: var(--hand); font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
 .node-h:hover { background: var(--bubble); }
 .node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
 .caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
@@ -105,7 +105,7 @@ mark { background: var(--mark); color: inherit; padding: 0 1px; }
 .kids > ul { overflow: hidden; list-style: none; margin: 0; padding: 0; }
 .node > .kids > ul { border-left: 1px dashed var(--line); margin-left: 12px; padding-left: 4px; }
 .leaf { display: flex; align-items: center; gap: 6px; padding: 0 8px 0 0; font-size: 13.5px; color: var(--ink-2); }
-.leaf .tog { width: 22px; height: 30px; display: grid; place-items: center; border: 0; background: none; cursor: pointer; padding: 0; color: var(--ink-3); flex: none; }
+.leaf .tog { width: 22px; height: 30px; display: grid; place-items: center; border: 0; background: none; cursor: var(--hand); padding: 0; color: var(--ink-3); flex: none; }
 .leaf .tog:hover { color: var(--blue); }
 .leaf .go { flex: 1; display: flex; align-items: baseline; gap: 8px; padding: 5px 0; text-decoration: none; min-width: 0; }
 .leaf .num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
@@ -125,11 +125,15 @@ mark { background: var(--mark); color: inherit; padding: 0 1px; }
 .title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
 .title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; letter-spacing: -.01em; line-height: 1.1; }
 .title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
-.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: pointer; padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: var(--hand); padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
 .sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
 .sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
 .sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
 #navBtn { display: none; margin-right: 6px; }
+/* cursor */
+html { --cur: url("images/cursor.svg") 0 0, auto; --hand: url("images/cursor-hand.svg") 11 0, pointer; cursor: var(--cur); }
+a, button, summary, label, select, [role="tab"], [data-tab] { cursor: var(--hand); }
+input[type="search"], input[type="text"], textarea { cursor: text; }
 body.nav-closed #navBtn { display: grid; }
 body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
 body.nav-closed .main { margin-left: 0; }
@@ -146,7 +150,7 @@ body.nav-closed .main { margin-left: 0; }
 
 /* sections */
 .sec { margin-bottom: 26px; scroll-margin-top: 84px; }
-.sec .bar { cursor: pointer; height: 34px; font-size: 13px; }
+.sec .bar { cursor: var(--hand); height: 34px; font-size: 13px; }
 .sec .bar .idx { font-family: var(--font-mono); font-size: 11px; opacity: .65; }
 .sec.closed .ctl .v { opacity: 1; }
 .sec:not(.closed) .ctl .v { opacity: 0; }
@@ -163,7 +167,7 @@ body.searching .sec.closed .body { grid-template-rows: 1fr; }
 .term h3 a:hover { color: var(--blue); }
 .term h3.has-rd { margin-bottom: 2px; }
 .rd { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-family: var(--font-mono); font-size: 12.5px; color: var(--blue); }
-.spk { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; cursor: pointer; color: var(--ink-2); background: var(--paper-solid); border: 1px solid var(--line-soft); }
+.spk { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; cursor: var(--hand); color: var(--ink-2); background: var(--paper-solid); border: 1px solid var(--line-soft); }
 .spk:hover { color: var(--blue); border-color: var(--blue); }
 .spk.on { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
 .spk svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; }
