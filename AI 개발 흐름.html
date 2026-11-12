@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기획자 노트 · AI 개발 흐름</title>
+<meta name="description" content="AI 코딩 에이전트로 PRD부터 테스트·디버깅까지 만드는 흐름">
+<script>
+  try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --bg: #e9eef9; --dot: rgba(47, 79, 224, .10); --paper: rgba(250, 252, 255, .86); --paper-solid: #f8faff; --cell: #fbfcff;
+  --ink: #131d55; --ink-2: #4b5a98; --ink-3: #8593c4; --blue: #2f4fe0; --blue-ink: #ffffff;
+  --bar: #d4e2ff; --bar-ink: #1b2a78; --line: #9db2ef; --line-soft: #d3ddf7; --shadow: #a9bdf5;
+  --bubble: #e3ecff; --say: #eef0f4; --mark: #ffe58a; --pt: #fffcdd; --ring: #bcd6fb;
+  --font-pixel: 'Galmuri11', 'Galmuri9', ui-monospace, monospace;
+  --font-mono: 'Galmuri Mono 11', 'GalmuriMono11', ui-monospace, 'Consolas', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+    --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+    --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+    --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --pt: #33300c; --ring: #18266d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d2c; --dot: rgba(125, 151, 255, .10); --paper: rgba(16, 24, 72, .86); --paper-solid: #111a4a;
+  --cell: #121b4e; --ink: #e2e9ff; --ink-2: #a5b4ec; --ink-3: #6676b5; --blue: #7d97ff; --blue-ink: #0a103a;
+  --bar: #1c2a78; --bar-ink: #dfe7ff; --line: #3b4fae; --line-soft: #26357f; --shadow: #050824;
+  --bubble: #1a2763; --say: #1d2238; --mark: #6b5a12; --pt: #33300c; --ring: #18266d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; font-family: var(--font-body); color: var(--ink); line-height: 1.6;
+  background: radial-gradient(var(--dot) 1px, transparent 1.2px) 0 0 / 18px 18px, var(--bg);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.ring { position: fixed; right: -90px; bottom: -110px; width: 380px; height: 300px; border-radius: 50%; border: 34px solid var(--ring); transform: rotate(-12deg); pointer-events: none; z-index: 0; }
+.ring::after { content: ""; position: absolute; left: -64px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: var(--ring); }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.win { background: var(--paper); border: 1px solid var(--line); box-shadow: 4px 4px 0 var(--shadow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.bar { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 4px 0 10px; background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--line); font-family: var(--font-pixel); font-size: 12px; letter-spacing: .02em; user-select: none; }
+.bar .ttl { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctl { width: 22px; height: 22px; display: grid; place-items: center; flex: none; border: 1px solid var(--line); background: var(--paper-solid); cursor: var(--hand); padding: 0; }
+.ctl:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.ctl svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+
+/* sidebar */
+.nav { position: fixed; z-index: 30; left: 16px; top: 16px; bottom: 16px; width: 260px; display: flex; flex-direction: column; transition: transform .28s cubic-bezier(.3,.7,.2,1), opacity .2s; }
+.nav .tree { flex: 1; overflow: auto; padding: 10px 8px 16px; }
+.node + .node { margin-top: 4px; }
+.node-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; background: none; text-align: left; cursor: var(--hand); font-family: var(--font-pixel); font-size: 13px; text-decoration: none; }
+.node-h:hover { background: var(--bubble); }
+.node-h .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.caret { width: 10px; height: 10px; flex: none; transition: transform .2s; }
+.caret path { stroke: currentColor; stroke-width: 1.6; fill: none; }
+.node.open > .node-h .caret { transform: rotate(90deg); }
+.node.off > .node-h { color: var(--ink-3); cursor: default; }
+.node.off > .node-h:hover { background: none; }
+.node.off .caret, .node.link .caret { opacity: .35; }
+.node.link > .node-h { color: var(--ink-2); }
+.kids { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+.node.open > .kids { grid-template-rows: 1fr; }
+.kids > ul { overflow: hidden; list-style: none; margin: 0 0 0 12px; padding: 0 0 0 4px; border-left: 1px dashed var(--line); }
+.leaf { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 6px 8px; border: 0; background: none; text-align: left; cursor: var(--hand); font-size: 13.5px; color: var(--ink-2); text-decoration: none; }
+.leaf .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf:hover { color: var(--ink); background: var(--bubble); }
+.leaf.on { color: var(--blue); background: var(--bubble); font-weight: 600; }
+.scrim { display: none; }
+
+/* main */
+.main { position: relative; z-index: 1; margin-left: 292px; padding: 16px 24px 80px 16px; transition: margin-left .28s cubic-bezier(.3,.7,.2,1); }
+.wrap { max-width: 1120px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.title { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.title h1 { margin: 0; font-family: var(--font-pixel); font-size: 26px; font-weight: 400; line-height: 1.1; }
+.title .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.sq { width: 38px; height: 38px; display: grid; place-items: center; flex: none; cursor: var(--hand); padding: 0; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.sq:hover { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+.sq:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+.sq svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+#navBtn { display: none; margin-right: 6px; }
+/* cursor */
+html { --cur: url("images/cursor.svg") 0 0, auto; --hand: url("images/cursor-hand.svg") 8 0, pointer; cursor: var(--cur); }
+a, button, summary, label, select, [role="tab"], [data-tab] { cursor: var(--hand); }
+input[type="search"], input[type="text"], textarea { cursor: text; }
+body.nav-closed #navBtn { display: grid; }
+body.nav-closed .nav { transform: translateX(calc(-100% - 24px)); opacity: 0; pointer-events: none; }
+body.nav-closed .main { margin-left: 0; }
+.search { position: relative; display: flex; align-items: center; width: min(300px, 100%); height: 38px; background: var(--paper-solid); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.search svg { position: absolute; left: 11px; width: 15px; height: 15px; stroke: var(--ink-3); stroke-width: 1.7; fill: none; pointer-events: none; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none; padding: 0 10px 0 34px; font: 14px var(--font-body); color: var(--ink); }
+.search input::placeholder { color: var(--ink-3); }
+.search:focus-within { border-color: var(--blue); }
+.search kbd { position: absolute; right: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-soft); padding: 0 5px; line-height: 18px; }
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.icon-sun { display: none; }
+.is-dark .icon-sun { display: block; }
+.is-dark .icon-moon { display: none; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.filters button { cursor: var(--hand); height: 28px; padding: 0 11px; font-family: var(--font-pixel); font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--paper-solid); }
+.filters button .n { margin-left: 6px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); }
+.filters button:hover { color: var(--blue); border-color: var(--blue); }
+.filters button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.filters button[aria-pressed="true"] .n { color: var(--blue-ink); opacity: .75; }
+
+/* lessons */
+.lesson { margin-bottom: 22px; scroll-margin-top: 16px; }
+.lesson .bar { height: 34px; }
+.lesson .bar .no { font-family: var(--font-mono); font-size: 11px; opacity: .7; }
+.lesson .bar .ttl { font-size: 13px; }
+.chk { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; margin-right: 2px; cursor: var(--hand); font: 11.5px var(--font-pixel); color: var(--ink-2); background: var(--paper-solid); border: 1px solid var(--line); }
+.chk svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 1.8; fill: none; opacity: .35; }
+.chk:hover { color: var(--blue); border-color: var(--blue); }
+.chk[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.chk[aria-pressed="true"] svg { opacity: 1; }
+.lb { padding: 22px 26px 24px; }
+.lb > .lead { margin: 0 0 12px; font-family: var(--font-pixel); font-size: 17px; line-height: 1.55; color: var(--ink); }
+.lb > p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.8; color: var(--ink-2); }
+.tbl { margin: 16px 0 0; overflow-x: auto; border: 1px solid var(--line-soft); }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.6; }
+.tbl th, .tbl td { padding: 8px 12px; text-align: left; vertical-align: top; border-top: 1px solid var(--line-soft); }
+.tbl thead th { border-top: 0; background: var(--say); font-family: var(--font-pixel); font-weight: 400; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.tbl tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.tbl td { color: var(--ink-2); }
+.pt { margin: 16px 0 0; padding: 12px 14px; background: var(--pt); }
+.pt .k { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; font-family: var(--font-pixel); font-size: 11.5px; background: #ffea00; color: #2b2000; }
+.pt ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.75; }
+.pt li + li { margin-top: 2px; }
+.rel { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+.chip { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; font-size: 12.5px; color: var(--ink-2); text-decoration: none; background: var(--paper-solid); border: 1px solid var(--line); }
+.chip:hover { color: var(--blue); border-color: var(--blue); }
+.tasks { margin: 0; padding: 6px 26px 22px 46px; }
+.tasks li { padding: 14px 0; border-top: 1px solid var(--line-soft); }
+.tasks li:first-child { border-top: 0; }
+.tasks h3 { margin: 0 0 4px; font-size: 15px; }
+.tasks p { margin: 0; font-size: 14px; line-height: 1.75; color: var(--ink-2); }
+.leaf .num { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.leaf.is-done { color: var(--ink-3); }
+.leaf.is-done::after { content: "✓"; margin-left: auto; color: var(--blue); font-size: 12px; }
+@media (max-width: 899px) {
+  .lb { padding: 18px 16px 20px; }
+  .lb > .lead { font-size: 16px; }
+  .tasks { padding: 4px 16px 18px 34px; }
+  .tbl th, .tbl td { padding: 7px 10px; }
+  .nav { left: 0; top: 0; bottom: 0; width: min(300px, 86vw); box-shadow: none; border-width: 0 1px 0 0; transform: translateX(-100%); opacity: 1; }
+  body.nav-open .nav { transform: none; box-shadow: 6px 0 0 var(--shadow); }
+  body.nav-closed .nav { transform: translateX(-100%); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(8, 13, 44, .35); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  body.nav-open .scrim { opacity: 1; pointer-events: auto; }
+  .main, body.nav-closed .main { margin-left: 0; padding: 12px 16px 60px; }
+  #navBtn { display: grid; }
+  .title h1 { font-size: 22px; }
+  .search { order: 5; width: 100%; }
+  .search kbd { display: none; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters button { flex: none; }
+  .ring { width: 260px; height: 200px; border-width: 24px; right: -110px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="ring" aria-hidden="true"></div>
+
+<aside class="nav win" id="nav" aria-label="메뉴">
+  <div class="bar">
+    <span class="ttl">기획자 노트</span>
+    <button class="ctl" id="navClose" aria-label="메뉴 닫기"><svg viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8"/></svg></button>
+  </div>
+  <nav class="tree" id="tree"></nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+  <div class="wrap">
+    <header class="top">
+      <button class="sq" id="navBtn" aria-label="메뉴 열기"><svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
+      <div class="title"><h1>AI 개발 흐름</h1><span class="n" id="count"></span></div>
+      <button class="sq" id="themeBtn" aria-label="화면 테마 전환">
+        <svg class="icon-moon" viewBox="0 0 16 16"><path d="M13 9.6A5.6 5.6 0 0 1 6.4 3a5.6 5.6 0 1 0 6.6 6.6z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/></svg>
+      </button>
+    </header>
+    <div id="list"></div>
+  </div>
+</main>
+
+<script>
+/* ════════════════════════════════════════════
+   AI 개발 흐름 — 내용은 scratchpad/dev/lessons.js, 빌드: node build-dev.js <site>
+   ════════════════════════════════════════════ */
+const LESSONS = [{"id":"d1","title":"플러그인이 하는 일","lead":"AI 코딩 에이전트에게 \"개발팀의 일하는 순서\"를 스킬 묶음으로 가르쳐 두는 것이 Superpowers다.","body":["에이전트는 시키면 바로 코드부터 쓰려고 한다. Superpowers는 질문하기, 설계 문서 쓰기, 계획 세우기, 테스트 먼저 쓰기, 원인부터 찾기 같은 습관을 스킬 15개로 담았다. 사람이 스킬 이름을 부르지 않아도, 에이전트가 작업 전에 맞는 스킬이 있는지 확인하고 알아서 꺼내 쓴다.","설치는 Claude Code 안에서 /plugin install superpowers@claude-plugins-official 한 줄이다. 공식 마켓플레이스가 안 보이면 /plugin marketplace add obra/superpowers-marketplace 뒤에 /plugin install superpowers@superpowers-marketplace 를 입력한다."],"ex":{"head":["순서","스킬","남는 것"],"rows":[["1","브레인스토밍 (brainstorming)","설계 문서 (스펙)"],["2","작업 공간 분리 (using-git-worktrees)","새 브랜치, 깨끗한 테스트 기준점"],["3","계획 쓰기 (writing-plans)","구현 계획 문서"],["4","실행 (subagent-driven-development 또는 executing-plans)","작업 단위 코드와 커밋"],["5","테스트 먼저 (test-driven-development)","실패 → 통과하는 테스트"],["6","코드 리뷰 (requesting-code-review)","심각도별 지적 사항"],["7","마무리 (finishing-a-development-branch)","병합, PR, 보류, 폐기 중 선택"],["수시로","디버깅 (systematic-debugging), 완료 확인 (verification-before-completion)","원인 분석, 고쳐졌다는 증거"]]},"point":["이 순서는 기획자에게 익숙한 흐름이다. 요구사항 정리 → 설계 → 일정과 작업 쪼개기 → 개발 → 테스트 → 검수 → 오픈. 각 단계의 문서를 AI가 대신 쓰고, 사람은 단계마다 승인한다.","단계마다 무엇이 남는지 알아 두면, 결과가 이상할 때 어느 문서부터 다시 볼지 바로 정할 수 있다."],"terms":["agent-skill","ai-plugin","ai-agent","harness"]},{"id":"d2","title":"질문으로 설계 문서 만들기","lead":"만들기 전에 AI가 먼저 묻고, 대답을 모아 설계 문서(스펙)로 정리한다.","body":["\"할 일 앱 만들어 줘\"라고 하면 바로 만들지 않고, 누가 쓰는지, 꼭 있어야 하는 기능이 무엇인지, 무엇은 이번에 빼는지를 한 번에 하나씩 묻는다. 방법이 여러 가지면 장단점과 함께 두세 안을 보여 주고 고르게 한다.","작은 수정은 대화에서 합의하고 끝난다. 프로젝트 규모면 설계 문서를 docs/superpowers/specs/날짜-주제-design.md 로 저장하고, 사람이 승인해야 다음 단계로 넘어간다."],"ex":{"head":["AI가 묻는 것","기획 문서로 치면"],"rows":[["누가, 어떤 상황에서 쓰나","PRD의 대상 사용자, 배경"],["꼭 되어야 하는 것은","기능 요구사항, 우선순위"],["이번에 하지 않을 것은","범위 밖 (Out of scope)"],["A안, B안 중 어느 쪽인가","정책 결정, 의사결정 기록"],["다 됐다고 볼 기준은","완료 조건, 성공 지표"]]},"point":["PRD가 이미 있으면 처음에 같이 넘긴다. AI의 질문이 PRD에서 빠진 부분을 그대로 드러내 주므로, 질문 목록 자체가 기획서 점검표가 된다.","승인 전에 설계 문서를 끝까지 읽는다. 여기서 잘못 잡힌 범위는 이후 계획, 코드, 테스트에 모두 번진다."],"terms":["job:prd","job:doc-compare","job:ai-dev-docs"]},{"id":"d3","title":"계획을 작게 쪼개기","lead":"승인된 설계를 2~5분짜리 작업으로 쪼갠 구현 계획을 쓴다.","body":["작업마다 고칠 파일 경로, 들어갈 코드, 확인 방법이 정확히 적힌다. 계획 문서는 docs/superpowers/plans/날짜-기능명.md 로 저장되고, 맨 위에 어떤 설계 문서를 구현하는지 연결해 둔다.","계획을 다 쓰면 AI가 실행 방식을 고르게 한다. 작업마다 새 서브에이전트를 붙이는 방식과, 지금 대화에서 차례로 처리하는 방식이다."],"ex":{"head":["문서","답하는 질문"],"rows":[["설계 문서 (스펙)","무엇을, 어떤 규칙으로 만드나"],["구현 계획","어떤 순서로, 어느 파일을, 어떻게 확인하며 만드나"]]},"point":["계획은 WBS와 같다. 작업이 작게 쪼개져 있어야 중간에 멈춰도 어디까지 됐는지 알 수 있고, 틀린 곳만 다시 시킬 수 있다.","작업마다 \"확인 방법\"이 있는지 본다. 확인 방법이 없는 작업은 끝났는지 판단할 수 없다."],"terms":["job:ai-dev-docs","man-month"]},{"id":"d4","title":"작업 공간 분리","lead":"본 코드를 건드리지 않도록 새 브랜치와 별도 폴더(워크트리)에서 작업한다.","body":["설계가 승인되면 AI가 새 브랜치로 작업 공간을 따로 만들고, 프로젝트 설정을 마친 뒤 기존 테스트가 모두 통과하는지 먼저 확인한다. 시작 시점에 깨끗한 기준점이 있어야, 나중에 실패한 테스트가 이번 작업 때문인지 원래 있던 문제인지 가를 수 있다."],"ex":{"head":["상황","분리해 두면"],"rows":[["결과가 마음에 안 든다","폴더째 버리면 끝. 본 코드는 그대로"],["두 기능을 동시에 시킨다","폴더가 달라 서로 덮어쓰지 않는다"],["완성됐다","브랜치를 병합하거나 PR로 올린다"]]},"point":["여러 AI 작업을 나란히 돌릴 때 특히 중요하다. 같은 파일을 두 작업이 동시에 고치면 충돌이 난다."],"terms":["worktree","branch","conflict","pr"]},{"id":"d5","title":"구현은 서브에이전트에게","lead":"계획의 작업 하나마다 새 서브에이전트가 구현하고, 끝날 때마다 두 번 검토한다.","body":["서브에이전트 방식은 작업마다 맥락이 깨끗한 새 AI가 붙는다. 앞 작업의 대화가 섞이지 않아 지시를 덜 헷갈린다. 작업이 끝나면 먼저 \"설계대로 만들었나\"를, 그다음 \"코드 품질이 괜찮나\"를 검토한다.","DB도 ORM으로 테이블 구조를 코드로 정의해 마이그레이션까지 만들고, 화면 확인용 테스트 데이터도 넣는다. 백엔드와 프론트엔드 저장소를 한 폴더 아래에 두면 양쪽 코드를 함께 읽고 API 호출 부분까지 이어 붙인다."],"ex":{"head":["방식","특징","쓸 때"],"rows":[["subagent-driven-development","작업마다 새 서브에이전트, 작업마다 검토","꼼꼼함이 중요할 때"],["executing-plans","지금 대화에서 차례로, 마지막에 한 번 검토","비용을 아끼고 싶을 때"]]},"point":["처음 프로젝트를 세팅해 일정 궤도에 올리는 단계는 여전히 개발 지식이 필요하다. 어떤 언어와 프레임워크, DB를 쓸지, 폴더를 어떻게 나눌지, 환경 변수와 배포를 어떻게 할지가 정해지면 그 뒤로 기능 추가는 점점 쉬워진다.","코드가 쌓일수록 AI가 따라 할 예시가 늘어 다음 기능이 빨라진다. 반대로 초반 구조가 엉키면 그 패턴도 그대로 복제된다."],"terms":["subagent","orm","migration","seed-data","monorepo","api"]},{"id":"d6","title":"테스트를 먼저","lead":"기능보다 테스트를 먼저 쓰고, 실패를 확인한 뒤 통과할 만큼만 코드를 쓴다.","body":["순서는 실패하는 테스트 작성(RED) → 통과하는 최소 코드(GREEN) → 정리(REFACTOR) → 커밋이다. Superpowers는 테스트 없이 먼저 쓴 코드를 지우고 다시 하게 할 만큼 이 순서를 엄격하게 지킨다.","테스트가 먼저 있으면 \"됐다\"의 기준이 사람의 느낌이 아니라 통과한 테스트가 된다. 나중에 기능을 고쳐도 기존 테스트가 깨지는지로 회귀를 바로 잡는다."],"ex":{"head":["단계","하는 일"],"rows":[["RED","아직 없는 기능의 테스트를 쓰고, 실패하는 것을 확인한다"],["GREEN","테스트가 통과할 만큼만 코드를 쓴다"],["REFACTOR","동작은 그대로 두고 코드를 정리한다. 테스트는 계속 통과해야 한다"]]},"point":["테스트 케이스는 기획자의 예외 시나리오에서 나온다. 비로그인, 빈 목록, 재고 0, 중복 클릭 같은 경우를 설계 단계에서 적어 두면 그대로 테스트가 된다."],"terms":["tdd","qa","refactoring","commit-push"]},{"id":"d7","title":"QA 문서와 브라우저 테스트","lead":"구현이 끝나면 QA 문서를 만들고, 브라우저를 직접 눌러 보며 결과를 문서에 채운다.","body":["AI에게 설계 문서와 계획을 근거로 QA 문서(테스트 케이스 목록)를 쓰게 하면, 사람이 지나치기 쉬운 예외 상황까지 빠짐없이 담는다.","크롬에 Claude 확장 프로그램을 설치하면 AI가 실제 웹 화면을 열어 버튼을 누르고 값을 입력하며 테스트 케이스를 하나씩 확인한다. 통과와 실패, 실패한 화면의 상태를 QA 문서에 다시 적어 준다."],"ex":{"head":["QA 문서 칸","채우는 쪽"],"rows":[["테스트 항목, 사전 조건, 절차, 기대 결과","AI가 설계 문서에서 뽑는다"],["실제 결과, 통과 여부","AI가 브라우저로 눌러 보고 적는다"],["재현 방법, 화면 상태","실패 항목에 AI가 덧붙인다"],["최종 판단, 오픈 여부","사람이 정한다"]]},"point":["AI가 쓴 QA 문서는 내가 쓴 테스트 케이스와 나란히 비교해 본다. 빠진 쪽이 어디인지가 내 기획의 빈칸이다.","결제, 메일 발송, 삭제처럼 되돌리기 어려운 동작은 테스트 환경에서만 시키고, 실제 실행은 사람이 확인한다."],"terms":["qa","computer-use","env","bug-issue","job:qa-role"]},{"id":"d8","title":"원인부터 찾는 디버깅","lead":"문제가 생기면 고치기 전에 원인을 먼저 찾는다. 증상을 덮는 수정은 하지 않는다.","body":["systematic-debugging 스킬은 네 단계로 움직인다. 에러 로그와 재현 과정으로 원인을 조사하고, 잘 되는 코드와 비교해 패턴을 찾고, 가설을 하나 세워 작게 시험한 뒤, 원인이 확인되면 그때 고친다.","고쳤다고 말하기 전에는 verification-before-completion 스킬이 테스트를 다시 돌려 증거를 확인하게 한다. 로컬에서 돌리기 무거운 작업은 원격 서버 접속을 한 번 설정해 두면 AI가 원격에 요청을 보내고 로그를 읽어 가며 디버깅한다."],"ex":{"head":["단계","하는 일"],"rows":[["1. 원인 조사","에러 메시지를 끝까지 읽고, 재현하고, 최근 바뀐 것을 확인한다"],["2. 패턴 분석","비슷하게 동작하는 정상 코드와 무엇이 다른지 비교한다"],["3. 가설과 시험","원인 가설 하나를 세우고 가장 작은 변경으로 확인한다"],["4. 수정","실패를 재현하는 테스트를 먼저 쓰고, 원인을 고친 뒤 통과를 확인한다"]]},"point":["버그를 전달할 때 \"안 돼요\" 대신 재현 순서, 기대 결과, 실제 결과, 화면이나 로그를 넘긴다. 1단계 원인 조사의 재료가 그대로 된다.","AI가 \"고쳤습니다\"라고 하면 무엇으로 확인했는지 묻는다. 테스트 결과나 화면 확인 같은 증거가 없으면 끝난 것이 아니다."],"terms":["bug-issue","incident","event-log","hotfix"]},{"id":"d9","title":"리뷰와 마무리","lead":"작업 사이사이 코드 리뷰를 받고, 모든 작업이 끝나면 병합할지 정한다.","body":["requesting-code-review 스킬은 계획과 대조해 코드를 검토하고 문제를 심각도별로 알린다. 심각한 문제가 있으면 다음 작업으로 넘어가지 않는다. 리뷰 의견을 받는 쪽(receiving-code-review)도 무조건 따르지 않고 근거를 확인한 뒤 반영한다.","마지막 단계에서는 테스트를 다시 확인하고 병합, PR, 보류, 폐기 중 무엇을 할지 묻는다. 고르면 작업 공간을 정리한다."],"ex":{"head":["선택","언제"],"rows":[["병합","혼자 하는 프로젝트, 바로 반영해도 될 때"],["PR","다른 사람의 검토를 거쳐야 할 때"],["보류","확인할 것이 남았을 때"],["폐기","방향이 틀렸을 때. 작업 공간째 버린다"]]},"point":["기획자의 검수와 같은 자리다. 설계 문서의 완료 조건을 다시 펴 놓고 하나씩 확인한 뒤 병합을 승인한다."],"terms":["pr","multi-model-review","deploy","rollback"]}];
+const TASKS = [{"title":"작은 앱으로 전체 흐름 한 번 돌리기","how":"할 일 목록이나 가계부처럼 화면 두세 개짜리 앱을 정해 Superpowers를 켠 상태로 시작한다. 설계 문서, 구현 계획, QA 문서가 각각 어디에 어떤 모양으로 남는지 열어 보고 단계마다 한 줄씩 기록한다.","learn":["d1","d3","d9"]},{"title":"AI의 질문과 내 PRD 비교하기","how":"예전에 쓴 기획서 하나를 넘기고 브레인스토밍 질문을 받아 본다. 내 문서에서 답할 수 없었던 질문을 모아 PRD 점검표로 만든다.","learn":["d2"]},{"title":"QA 문서 대조하기","how":"같은 기능의 테스트 케이스를 내가 먼저 쓰고, AI가 쓴 QA 문서와 나란히 놓는다. 양쪽에만 있는 항목을 표시하고, 브라우저 테스트 결과에서 실패한 항목의 원인을 디버깅 4단계로 따라가 본다.","learn":["d6","d7","d8"]}];
+const TERMS = {"agent-skill":"스킬","ai-plugin":"플러그인","ai-agent":"AI 에이전트","harness":"하네스","job:prd":"PRD","job:doc-compare":"기능명세서 · 화면설계서 · PRD 차이","job:ai-dev-docs":"AI 개발에서 남는 문서","man-month":"공수 / MM","worktree":"워크트리","branch":"브랜치 / 머지","conflict":"충돌","pr":"PR / 코드 리뷰","subagent":"서브에이전트","orm":"ORM","migration":"마이그레이션","seed-data":"시드 데이터 / 테스트 데이터","monorepo":"모노레포","api":"API","tdd":"TDD","qa":"QA / 테스트 케이스","refactoring":"리팩토링","commit-push":"커밋 / 푸시","computer-use":"컴퓨터 사용","env":"개발 / 스테이징 / 운영","bug-issue":"버그 / 이슈 / 티켓","job:qa-role":"QA","incident":"장애 / SLA","event-log":"로그 / 이벤트 트래킹","hotfix":"핫픽스","multi-model-review":"교차 리뷰","deploy":"배포 / 릴리즈","rollback":"롤백"};
+
+const MENU = [
+  { id: 'it', title: 'IT 용어', href: '기획 노트.html' },
+  { id: 'dict', title: 'IT 기술 사전', href: 'IT 기술 사전.html' },
+  { id: 'job', title: '직무 용어', href: '직무 용어.html' },
+  { id: 'nlp', title: 'NLP 기초', href: 'NLP 기초.html' },
+  { id: 'dev', title: 'AI 개발 흐름', current: true },
+  { id: 'ai', title: 'AI 팁', href: 'AI 팁.html' },
+  { id: 'ref', title: '참고 사이트', href: '레퍼런스.html' },
+  { id: 'api', title: '공개 API', href: '공개 API.html' },
+];
+
+/* ════════════════════════════════════════════ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const mq = matchMedia('(max-width: 899px)');
+const caret = '<svg class="caret" viewBox="0 0 10 10"><path d="M3 1.5L7 5l-4 3.5"/></svg>';
+const pad = n => String(n).padStart(2, '0');
+const lessonNo = id => LESSONS.findIndex(l => l.id === id) + 1;
+let done = new Set(store.get('pn.dev.done', []));
+
+function renderTree() {
+  const openNodes = store.get('pn.dev.tree', ['dev']);
+  $('#tree').innerHTML = MENU.map(m => {
+    if (m.href) return `<div class="node link"><a class="node-h" href="${esc(m.href)}">${caret}${esc(m.title)}</a></div>`;
+    const open = openNodes.includes(m.id);
+    const kids = LESSONS.map((l, i) => `<li><a class="leaf${done.has(l.id) ? ' is-done' : ''}" href="#${l.id}" data-go="${l.id}"><span class="num">${pad(i + 1)}</span>${esc(l.title)}</a></li>`).join('')
+      + `<li><a class="leaf" href="#tasks" data-go="tasks"><span class="num">+</span>연습 과제</a></li>`;
+    return `<div class="node${open ? ' open' : ''}" data-node="${m.id}">
+      <button class="node-h" aria-expanded="${open}">${caret}${esc(m.title)}<span class="n">${done.size}/${LESSONS.length}</span></button>
+      <div class="kids"><ul>${kids}</ul></div></div>`;
+  }).join('');
+}
+
+const termHref = id => id.startsWith('job:') ? `직무 용어.html#t-${esc(id.slice(4))}` : `기획 노트.html#t-${esc(id)}`;
+const termChip = id => TERMS[id] ? `<a class="chip" href="${termHref(id)}">${esc(TERMS[id])}</a>` : '';
+const table = ex => `<div class="tbl"><table><thead><tr>${ex.head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+  <tbody>${ex.rows.map(r => `<tr>${r.map((c, i) => i ? `<td>${esc(c)}</td>` : `<th scope="row">${esc(c)}</th>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+function render() {
+  $('#list').innerHTML = LESSONS.map((l, i) => `
+    <section class="win lesson${done.has(l.id) ? ' is-done' : ''}" id="${l.id}">
+      <div class="bar"><span class="no">${pad(i + 1)}</span><span class="ttl">${esc(l.title)}</span>
+        <button class="chk" data-id="${l.id}" aria-pressed="${done.has(l.id)}"><svg viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7"/></svg>완료</button></div>
+      <div class="lb">
+        <p class="lead">${esc(l.lead)}</p>
+        ${l.body.map(p => `<p>${esc(p)}</p>`).join('')}
+        ${l.ex ? table(l.ex) : ''}
+        <div class="pt"><span class="k">기획 포인트</span><ul>${l.point.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+        ${l.terms.length ? `<div class="rel">${l.terms.map(termChip).join('')}</div>` : ''}
+      </div>
+    </section>`).join('') + `
+    <section class="win lesson" id="tasks">
+      <div class="bar"><span class="no">+</span><span class="ttl">연습 과제</span></div>
+      <ol class="tasks">${TASKS.map(t => `<li><h3>${esc(t.title)}</h3><p>${esc(t.how)}</p>
+        <div class="rel">${t.learn.map(id => `<a class="chip" href="#${id}" data-go="${id}">${pad(lessonNo(id))} ${esc(LESSONS[lessonNo(id) - 1].title)}</a>`).join('')}</div></li>`).join('')}</ol>
+    </section>`;
+  $('#count').textContent = `${done.size}/${LESSONS.length}`;
+}
+
+function go(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+  try { history.replaceState(null, '', '#' + id); } catch (err) {}
+  spy();
+}
+
+$('#list').addEventListener('click', e => {
+  const c = e.target.closest('.chk');
+  if (c) {
+    const id = c.dataset.id;
+    done.has(id) ? done.delete(id) : done.add(id);
+    store.set('pn.dev.done', [...done]);
+    c.setAttribute('aria-pressed', done.has(id));
+    c.closest('.lesson').classList.toggle('is-done', done.has(id));
+    $('#count').textContent = `${done.size}/${LESSONS.length}`;
+    renderTree(); spy();
+    return;
+  }
+  const a = e.target.closest('[data-go]');
+  if (a) { e.preventDefault(); go(a.dataset.go); }
+});
+$('#tree').addEventListener('click', e => {
+  const a = e.target.closest('[data-go]'); if (!a) return;
+  e.preventDefault(); go(a.dataset.go);
+  if (mq.matches) setNav(false);
+});
+
+function spy() {
+  let cur = '';
+  for (const s of $$('.lesson')) if (s.getBoundingClientRect().top < 120) cur = s.id;
+  $$('.leaf[data-go]').forEach(l => l.classList.toggle('on', l.dataset.go === cur));
+}
+addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.body.classList.contains('nav-open')) setNav(false);
+});
+
+/* nav */
+function setNav(open) {
+  if (mq.matches) document.body.classList.toggle('nav-open', open);
+  else { document.body.classList.toggle('nav-closed', !open); store.set('pn.navClosed', !open); }
+}
+$('#navBtn').addEventListener('click', () => setNav(mq.matches ? !document.body.classList.contains('nav-open') : true));
+$('#navClose').addEventListener('click', () => setNav(false));
+$('#scrim').addEventListener('click', () => setNav(false));
+if (store.get('pn.navClosed', false)) document.body.classList.add('nav-closed');
+mq.addEventListener('change', () => document.body.classList.remove('nav-open'));
+$('#tree').addEventListener('click', e => {
+  const h = e.target.closest('.node:not(.off):not(.link) > .node-h');
+  if (!h) return;
+  const open = h.parentElement.classList.toggle('open');
+  h.setAttribute('aria-expanded', open);
+  store.set('pn.dev.tree', $$('.node.open').map(n => n.dataset.node));
+});
+
+/* theme */
+const dark = matchMedia('(prefers-color-scheme: dark)');
+function isDark() { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : dark.matches; }
+function syncThemeIcon() { document.body.classList.toggle('is-dark', isDark()); }
+$('#themeBtn').addEventListener('click', () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('pn.theme', next); } catch (e) {}
+  syncThemeIcon();
+});
+dark.addEventListener('change', syncThemeIcon);
+
+renderTree();
+render();
+syncThemeIcon();
+try { const h = decodeURIComponent(location.hash.slice(1)); if (h) document.getElementById(h)?.scrollIntoView(); } catch (e) {}
+spy();
+</script>
+</body>
+</html>
