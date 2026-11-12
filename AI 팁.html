@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>기획자 노트 · AI 팁</title>
+<title>기획자 노트 > AI 팁</title>
 <meta name="description" content="AI를 쓰면서 얻은 팁과 시사점 기록">
 <script>
   try { var t = localStorage.getItem('pn.theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -561,9 +561,9 @@ function show(p) {
     renderPost(p);
     $('#postView').scrollTop = 0;
     $('#modal .ctl').focus({ preventScroll: true });
-    document.title = `${p.title} · AI 팁`;
+    document.title = `AI 팁 > ${p.title}`;
   } else {
-    document.title = '기획자 노트 · AI 팁';
+    document.title = '기획자 노트 > AI 팁';
     if (wasOpen && lastFocus) lastFocus.focus({ preventScroll: true });
   }
 }
